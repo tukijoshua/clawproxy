@@ -5,10 +5,10 @@ import { X } from 'lucide-react';
 
 export function Problem() {
   const problems = [
-    'Design phase: 2-3 weeks',
-    'Development: 6-8 weeks',
-    'Revisions: 2-4 weeks',
-    'Total: 12+ weeks'
+    'Week 1-2: "Let\'s schedule some discovery calls"',
+    'Week 3-6: "We\'re working on the design"',
+    'Week 7-12: "Development is in progress"',
+    'Week 13+: "Just a few more revisions"'
   ];
 
   return (
@@ -24,8 +24,16 @@ export function Problem() {
             className="space-y-6"
           >
             <h2 className="text-5xl font-bold text-brand-black">
-              Why Traditional Agencies Are Too Slow
+              The problem with traditional dev
             </h2>
+
+            <p className="text-xl text-brand-gray-700">
+              You have an idea. You're ready to build. You find an agency.
+            </p>
+
+            <p className="text-xl text-brand-gray-700">
+              Then reality hits:
+            </p>
 
             <div className="space-y-4">
               {problems.map((problem, index) => (
@@ -37,12 +45,12 @@ export function Problem() {
             </div>
 
             <p className="text-lg text-brand-gray-600 pt-6">
-              By the time you launch, your competitors already shipped.
-              The market moved. You're playing catch-up.
+              Three months later, you finally launch. But your competitors already shipped.
+              The market moved. You spent $50K waiting.
             </p>
 
             <p className="text-2xl font-semibold text-brand-black pt-4">
-              There's a better way.
+              There has to be a better way.
             </p>
           </motion.div>
 
