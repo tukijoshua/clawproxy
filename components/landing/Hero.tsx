@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-brand-black overflow-hidden pt-20">
+    <section id="hero" className="relative min-h-screen flex items-center justify-center bg-brand-black overflow-hidden pt-20">
       {/* Animated grid background */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:64px_64px]" />
 
@@ -43,7 +43,7 @@ export function Hero() {
               </motion.button>
             </Link>
 
-            <a href="#how-it-works">
+            <a href="#problem">
               <button className="w-full sm:w-auto px-8 py-4 border-2 border-brand-gray-700 text-brand-white rounded-lg font-semibold text-lg hover:border-brand-gray-500 transition">
                 See How We Build
               </button>

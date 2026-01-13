@@ -12,7 +12,7 @@ export function Problem() {
   ];
 
   return (
-    <section className="py-32 bg-brand-white">
+    <section id="problem" className="py-32 bg-brand-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           {/* Problem side */}

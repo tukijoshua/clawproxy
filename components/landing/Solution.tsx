@@ -23,7 +23,7 @@ export function Solution() {
   ];
 
   return (
-    <section className="py-32 bg-brand-black">
+    <section id="solution" className="py-32 bg-brand-black">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
