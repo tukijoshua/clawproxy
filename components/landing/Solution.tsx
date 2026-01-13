@@ -7,18 +7,18 @@ export function Solution() {
   const features = [
     {
       icon: Zap,
-      title: 'AI-Powered Development',
-      description: 'Claude Code builds what takes developers weeks in days'
+      title: 'AI does the heavy lifting',
+      description: 'Claude Code handles the code. We handle the vision, design, and polish.'
     },
     {
       icon: Palette,
-      title: 'Design-First Approach',
-      description: "We're designers who code. Beautiful AND fast."
+      title: 'Designers who build',
+      description: "Most dev shops can't design. Most design shops can't build. We do both."
     },
     {
       icon: Target,
-      title: 'Battle-Tested Process',
-      description: '20+ products shipped. We know what works.'
+      title: 'Proven process',
+      description: '$115K built in 8 months. 20+ products shipped. We know what works.'
     }
   ];
 
@@ -33,10 +33,16 @@ export function Solution() {
           className="text-center mb-20"
         >
           <h2 className="text-5xl font-bold text-brand-white mb-6">
-            How Kreos Ships 10x Faster
+            We found it.
           </h2>
           <p className="text-xl text-brand-gray-400 max-w-2xl mx-auto">
-            We use Claude Code - an AI-powered development tool that's revolutionizing how products are built.
+            Claude Code is an AI development tool that writes, tests, and deploys code.
+            <br />
+            <br />
+            What takes traditional developers 8 weeks takes us 5 days.
+            <br />
+            <br />
+            We're designers who learned to build with AI. So your product doesn't just work—it looks incredible.
           </p>
         </motion.div>
 
@@ -134,8 +140,9 @@ export function Solution() {
           viewport={{ once: true }}
           className="text-center text-xl text-brand-gray-400 mt-12"
         >
-          Result: Your competitors are still in planning meetings.{' '}
-          <span className="text-brand-white font-semibold">You're already live.</span>
+          While your competitors are in week 3 of "discovery,"
+          <br />
+          <span className="text-brand-white font-semibold">you're already getting users.</span>
         </motion.p>
       </div>
     </section>
