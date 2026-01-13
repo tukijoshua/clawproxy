@@ -9,78 +9,78 @@ export function Services() {
     {
       icon: Rocket,
       name: 'Rapid Prototype',
-      price: '$5,000 - $8,000',
+      price: '$5–8K',
       timeline: '3-5 days',
       popular: false,
       description: 'Perfect for:',
       points: [
-        'Validating ideas fast',
-        'Investor demos',
-        'Market testing'
+        'Testing an idea before going all-in',
+        'Showing investors something real',
+        'Validating with actual users'
       ],
       includes: [
-        'Core features functional',
-        'Clean, modern design',
-        'Deployed and live',
-        'Basic analytics'
+        'Core features built and deployed',
+        'Clean, modern UI',
+        'Live link you can share',
+        'Basic analytics setup'
       ]
     },
     {
       icon: Palette,
-      name: 'Full Product Build',
-      price: '$12,000 - $25,000',
+      name: 'Full Product',
+      price: '$12–25K',
       timeline: '7-14 days',
       popular: true,
       description: 'Perfect for:',
       points: [
-        'Launching your MVP',
-        'Going to market',
-        'Funded startups'
+        'Launching your MVP to market',
+        'Shipping version 1.0',
+        'Building something real, fast'
       ],
       includes: [
-        'Complete design system',
-        'Full development',
-        'Payment integration',
-        'Deployment',
-        '30 days support'
+        'Complete product, designed & built',
+        'Payment integration (Stripe)',
+        'User authentication',
+        'Deployed and live',
+        '30 days of support & tweaks'
       ]
     },
     {
       icon: Bot,
       name: 'AI Integration',
-      price: '$8,000 - $15,000',
+      price: '$8–15K',
       timeline: '5-7 days',
       popular: false,
       description: 'Perfect for:',
       points: [
-        'Adding AI features',
-        'Upgrading existing apps',
-        'Claude/GPT integration'
+        'Adding AI to your existing product',
+        'Upgrading with GPT or Claude',
+        'Building custom AI features'
       ],
       includes: [
         'AI feature development',
-        'API integration',
-        'Testing & optimization',
-        'Documentation'
+        'API integration & testing',
+        'Documentation for your team',
+        'Optimization for speed & cost'
       ]
     },
     {
       icon: Zap,
       name: 'Design Sprint',
-      price: '$3,000 - $5,000',
+      price: '$3–5K',
       timeline: '2-3 days',
       popular: false,
       description: 'Perfect for:',
       points: [
-        'UI/UX design only',
-        'Design systems',
-        'Dev teams needing design'
+        'Dev teams who need design',
+        'Redesigning an existing product',
+        'Creating a design system'
       ],
       includes: [
-        'Complete design in Figma',
-        'Design system',
+        'Complete UI/UX in Figma',
         'Component library',
-        'Developer handoff'
+        'Design system documentation',
+        'Developer handoff files'
       ]
     }
   ];
