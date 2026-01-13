@@ -1,10 +1,21 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export function Hero() {
+  const [user, setUser] = useState<any>(null);
+  const supabase = createClientComponentClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+  }, [supabase]);
+
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center bg-brand-black overflow-hidden pt-20">
       {/* Animated grid background */}
@@ -32,22 +43,49 @@ export function Hero() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
-            <Link href="/start">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full sm:w-auto px-8 py-4 bg-brand-blue text-brand-white rounded-lg font-semibold text-lg flex items-center justify-center gap-2 hover:bg-blue-600 transition"
-              >
-                Start Your Project
-                <ArrowRight className="w-5 h-5" />
-              </motion.button>
-            </Link>
+            {user ? (
+              <>
+                <Link href="/dashboard">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full sm:w-auto px-8 py-4 bg-brand-blue text-brand-white rounded-lg font-semibold text-lg flex items-center justify-center gap-2 hover:bg-blue-600 transition"
+                  >
+                    Go to Dashboard
+                    <ArrowRight className="w-5 h-5" />
+                  </motion.button>
+                </Link>
+                <Link href="/start">
+                  <button className="w-full sm:w-auto px-8 py-4 border-2 border-brand-gray-700 text-brand-white rounded-lg font-semibold text-lg hover:border-brand-gray-500 transition">
+                    Start New Project
+                  </button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/start">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full sm:w-auto px-8 py-4 bg-brand-blue text-brand-white rounded-lg font-semibold text-lg flex items-center justify-center gap-2 hover:bg-blue-600 transition"
+                  >
+                    Start Your Project
+                    <ArrowRight className="w-5 h-5" />
+                  </motion.button>
+                </Link>
 
-            <a href="#problem">
-              <button className="w-full sm:w-auto px-8 py-4 border-2 border-brand-gray-700 text-brand-white rounded-lg font-semibold text-lg hover:border-brand-gray-500 transition">
-                See How We Build
-              </button>
-            </a>
+                <button
+                  onClick={() => {
+                    document.getElementById('problem')?.scrollIntoView({
+                      behavior: 'smooth'
+                    });
+                  }}
+                  className="w-full sm:w-auto px-8 py-4 border-2 border-brand-gray-700 text-brand-white rounded-lg font-semibold text-lg hover:border-brand-gray-500 transition"
+                >
+                  See How We Build
+                </button>
+              </>
+            )}
           </div>
 
           <div className="mt-16 text-brand-gray-500 text-xs sm:text-sm px-4">
