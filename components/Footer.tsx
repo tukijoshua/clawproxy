@@ -1,44 +1,64 @@
+'use client';
+
 import Link from 'next/link';
+import { Twitter, Mail, ArrowUpRight } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="bg-brand-black border-t border-brand-gray-800 py-12">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-brand-black border-t border-brand-gray-900">
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="grid md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
-          <div className="col-span-1">
+          <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-brand-blue rounded-lg" />
-              <span className="text-xl font-bold text-brand-white">Kreos</span>
+              <div className="w-10 h-10 bg-brand-blue rounded-lg" />
+              <span className="text-2xl font-bold text-brand-white">Kreos</span>
             </div>
-            <p className="text-brand-gray-400 text-sm">
-              AI-powered product development. Ship 10x faster.
+            <p className="text-brand-gray-400 mb-6 max-w-sm">
+              The #1 studio building products with Claude Code.
+              Ship in 7 days, not months.
             </p>
+            <div className="flex gap-4">
+              <a
+                href="https://twitter.com/kreosagency"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-lg bg-brand-gray-900 flex items-center justify-center text-brand-gray-400 hover:text-brand-white hover:bg-brand-gray-800 transition"
+              >
+                <Twitter className="w-5 h-5" />
+              </a>
+              <a
+                href="mailto:hello@kreos.agency"
+                className="w-10 h-10 rounded-lg bg-brand-gray-900 flex items-center justify-center text-brand-gray-400 hover:text-brand-white hover:bg-brand-gray-800 transition"
+              >
+                <Mail className="w-5 h-5" />
+              </a>
+            </div>
           </div>
 
           {/* Services */}
           <div>
             <h3 className="text-brand-white font-semibold mb-4">Services</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               <li>
-                <a href="#services" className="text-brand-gray-400 hover:text-brand-white transition text-sm">
+                <Link href="/#services" className="text-brand-gray-400 hover:text-brand-white transition">
                   Rapid Prototype
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#services" className="text-brand-gray-400 hover:text-brand-white transition text-sm">
+                <Link href="/#services" className="text-brand-gray-400 hover:text-brand-white transition">
                   Full Product Build
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#services" className="text-brand-gray-400 hover:text-brand-white transition text-sm">
+                <Link href="/#services" className="text-brand-gray-400 hover:text-brand-white transition">
                   AI Integration
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#services" className="text-brand-gray-400 hover:text-brand-white transition text-sm">
+                <Link href="/#services" className="text-brand-gray-400 hover:text-brand-white transition">
                   Design Sprint
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -46,51 +66,50 @@ export function Footer() {
           {/* Company */}
           <div>
             <h3 className="text-brand-white font-semibold mb-4">Company</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               <li>
-                <a href="#how-it-works" className="text-brand-gray-400 hover:text-brand-white transition text-sm">
-                  How It Works
-                </a>
-              </li>
-              <li>
-                <a href="#portfolio" className="text-brand-gray-400 hover:text-brand-white transition text-sm">
+                <Link href="/#portfolio" className="text-brand-gray-400 hover:text-brand-white transition">
                   Portfolio
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#faq" className="text-brand-gray-400 hover:text-brand-white transition text-sm">
+                <Link href="/#how-it-works" className="text-brand-gray-400 hover:text-brand-white transition">
+                  How It Works
+                </Link>
+              </li>
+              <li>
+                <Link href="/#faq" className="text-brand-gray-400 hover:text-brand-white transition">
                   FAQ
+                </Link>
+              </li>
+              <li>
+                <a
+                  href="https://twitter.com/TukiFromKL"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-gray-400 hover:text-brand-white transition flex items-center gap-1"
+                >
+                  Founder
+                  <ArrowUpRight className="w-3 h-3" />
                 </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h3 className="text-brand-white font-semibold mb-4">Get Started</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/start" className="text-brand-gray-400 hover:text-brand-white transition text-sm">
-                  Start a Project
-                </Link>
-              </li>
-              <li>
-                <Link href="/auth/login" className="text-brand-gray-400 hover:text-brand-white transition text-sm">
-                  Client Login
-                </Link>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom */}
-        <div className="mt-12 pt-8 border-t border-brand-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="pt-8 border-t border-brand-gray-900 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-brand-gray-500 text-sm">
-            © 2026 Kreos.agency. All rights reserved.
+            © 2026 Kreos. Built with Claude Code
           </p>
-          <p className="text-brand-gray-500 text-sm">
-            Built with Claude Code
-          </p>
+          <div className="flex gap-6 text-sm">
+            <Link href="/privacy" className="text-brand-gray-500 hover:text-brand-white transition">
+              Privacy
+            </Link>
+            <Link href="/terms" className="text-brand-gray-500 hover:text-brand-white transition">
+              Terms
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
