@@ -17,17 +17,18 @@ export function Hero() {
           transition={{ duration: 0.8 }}
         >
           <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-brand-white mb-6 leading-none px-4">
-            Products that{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-cyan-400">
-              ship
-            </span>
+            Your product.
             <br />
-            while others plan.
+            Live in{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-cyan-400">
+              7 days.
+            </span>
           </h1>
 
           <p className="text-lg sm:text-xl md:text-2xl text-brand-gray-400 mb-12 max-w-2xl mx-auto px-4">
-            We design, build, and launch products in 7 days using Claude Code.
-            10x faster than traditional development.
+            Most agencies take 3 months. We take a week.
+            <br />
+            Same quality. Just impossibly fast.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
