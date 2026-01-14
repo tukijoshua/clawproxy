@@ -1,6 +1,7 @@
 import { Hero } from '@/components/landing/Hero';
 import { Problem } from '@/components/landing/Problem';
 import { Solution } from '@/components/landing/Solution';
+import { Process } from '@/components/landing/Process';
 import { Services } from '@/components/landing/Services';
 import { FAQ } from '@/components/landing/FAQ';
 
@@ -10,6 +11,7 @@ export default function Home() {
       <Hero />
       <Problem />
       <Solution />
+      <Process />
       <Services />
       {/* Portfolio section coming soon */}
       <section id="portfolio" className="py-32 bg-brand-black">

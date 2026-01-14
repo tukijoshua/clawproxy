@@ -76,7 +76,7 @@ export function Hero() {
 
                 <button
                   onClick={() => {
-                    document.getElementById('problem')?.scrollIntoView({
+                    document.getElementById('how-it-works')?.scrollIntoView({
                       behavior: 'smooth'
                     });
                   }}

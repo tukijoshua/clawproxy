@@ -74,7 +74,7 @@ export function Navbar() {
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8">
               <a
-                href="#problem"
+                href="#how-it-works"
                 className="text-brand-gray-400 hover:text-brand-white transition"
               >
                 How It Works
@@ -139,7 +139,7 @@ export function Navbar() {
           >
             <div className="flex flex-col items-center justify-center h-full gap-8">
               <a
-                href="#problem"
+                href="#how-it-works"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="text-2xl text-brand-white hover:text-brand-blue transition"
               >
