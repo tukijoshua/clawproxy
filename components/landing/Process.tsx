@@ -20,7 +20,7 @@ export function Process() {
       icon: Palette,
       day: 'Days 2-3',
       title: 'Design',
-      description: 'We create the complete UI/UX in Figma. You review, we iterate until it's perfect.',
+      description: 'We create the complete UI/UX in Figma. You review, we iterate until it\'s perfect.',
       details: [
         'Full UI design in Figma',
         'Fast iteration cycles',
@@ -42,7 +42,7 @@ export function Process() {
       icon: Rocket,
       day: 'Days 9-10',
       title: 'Polish & Launch',
-      description: 'Final touches. Testing. Deployment. You're live. We provide 30 days of support.',
+      description: 'Final touches. Testing. Deployment. You\'re live. We provide 30 days of support.',
       details: [
         'Final testing and polish',
         'Deploy to production',
