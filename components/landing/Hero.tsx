@@ -1,24 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { createBrowserClient } from '@supabase/ssr';
 
 export function Hero() {
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-    });
-  }, []);
+  // Authentication check removed for now - will add back later
+  const user = null;
 
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center bg-brand-black overflow-hidden pt-20">
