@@ -4,17 +4,21 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 
 export function Hero() {
   const [user, setUser] = useState<any>(null);
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
     });
-  }, [supabase]);
+  }, []);
 
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center bg-brand-black overflow-hidden pt-20">
