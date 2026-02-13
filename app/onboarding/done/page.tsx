@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -16,6 +17,31 @@ const fadeUp = {
 
 export default function DonePage() {
   const router = useRouter();
+  const [saving, setSaving] = useState(false);
+
+  const handleGoToDashboard = async () => {
+    setSaving(true);
+    try {
+      const role = localStorage.getItem('onboarding_role');
+      const agentCount = localStorage.getItem('onboarding_agentCount');
+
+      await fetch('/api/onboarding/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          role: role || null,
+          agentCount: agentCount ? parseInt(agentCount, 10) : 0,
+        }),
+      });
+
+      // Clear onboarding data from localStorage
+      localStorage.removeItem('onboarding_role');
+      localStorage.removeItem('onboarding_agentCount');
+    } catch {
+      // Continue to dashboard even if persistence fails
+    }
+    router.push('/dashboard');
+  };
 
   return (
     <OnboardingLayout currentStep={6}>
@@ -129,8 +155,9 @@ export default function DonePage() {
           <motion.button
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
-            onClick={() => router.push('/dashboard')}
-            className="w-full h-[43px] rounded-lg flex items-center justify-center cursor-pointer"
+            onClick={handleGoToDashboard}
+            disabled={saving}
+            className="w-full h-[43px] rounded-lg flex items-center justify-center cursor-pointer disabled:opacity-50"
             style={{
               backgroundColor: '#17803D',
               transition: 'background-color 0.25s ease',
@@ -146,7 +173,7 @@ export default function DonePage() {
               className="text-[13px] sm:text-[14px] leading-[1.15] text-white"
               style={{ letterSpacing: '-0.007em' }}
             >
-              Open my dashboard →
+              {saving ? 'Saving...' : 'Open my dashboard \u2192'}
             </span>
           </motion.button>
 

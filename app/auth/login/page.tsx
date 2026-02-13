@@ -201,11 +201,21 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Forgot password */}
+            <div className="mt-[10px] text-right">
+              <Link
+                href="/auth/forgot-password"
+                className="text-[12.5px] leading-[1.15] text-[#8F8F87] hover:text-[#17803D] transition"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
             {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-[43px] bg-[#17803D] text-white rounded-lg text-[15px] leading-[1.15] mt-[20px] hover:bg-[#14702f] transition disabled:opacity-50"
+              className="w-full h-[43px] bg-[#17803D] text-white rounded-lg text-[15px] leading-[1.15] mt-[14px] hover:bg-[#14702f] transition disabled:opacity-50"
               style={{ letterSpacing: '-0.013em' }}
             >
               {loading ? 'Signing in...' : 'Sign in \u2192'}

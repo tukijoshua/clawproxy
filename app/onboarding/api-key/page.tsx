@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -17,10 +17,29 @@ const fadeUp = {
 
 export default function ApiKeyPage() {
   const [copied, setCopied] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const router = useRouter();
-  const apiKey = 'cp_sk_a8f3x9d2e5b1c7f4m6k9p2r5t8w1y4';
+
+  useEffect(() => {
+    const generateKey = async () => {
+      try {
+        const res = await fetch('/api/keys/generate', { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to generate key');
+        setApiKey(data.key);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to generate key');
+      } finally {
+        setLoading(false);
+      }
+    };
+    generateKey();
+  }, []);
 
   const handleCopy = async () => {
+    if (!apiKey) return;
     await navigator.clipboard.writeText(apiKey);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -79,20 +98,31 @@ export default function ApiKeyPage() {
             className="w-full h-[52px] sm:h-[58px] rounded-[6px] flex items-center justify-between px-[16px] sm:px-[28px] relative overflow-hidden"
             style={{ backgroundColor: '#383838' }}
           >
-            <span
-              className="text-[11px] sm:text-[13.5px] leading-[1.32] text-white truncate mr-[12px]"
-              style={{
-                fontFamily: 'JetBrains Mono, monospace',
-                letterSpacing: '0.022em',
-              }}
-            >
-              {apiKey}
-            </span>
+            {loading ? (
+              <div className="flex items-center gap-[8px] flex-1">
+                <div className="h-[14px] w-[200px] sm:w-[320px] bg-[#555] rounded animate-pulse" />
+              </div>
+            ) : error ? (
+              <span className="text-[12px] sm:text-[13px] leading-[1.32] text-red-400 truncate mr-[12px]">
+                {error}
+              </span>
+            ) : (
+              <span
+                className="text-[11px] sm:text-[13.5px] leading-[1.32] text-white truncate mr-[12px]"
+                style={{
+                  fontFamily: 'JetBrains Mono, monospace',
+                  letterSpacing: '0.022em',
+                }}
+              >
+                {apiKey}
+              </span>
+            )}
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleCopy}
               className="cursor-pointer shrink-0"
+              disabled={loading || !!error}
             >
               <Image
                 src="/images/onboarding/icon-copy.svg"

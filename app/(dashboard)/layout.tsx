@@ -1,9 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { createClient } from '@/lib/supabase/client';
+import { PLAN_BADGE_STYLES } from '@/lib/constants';
+import type { User } from '@/lib/supabase/types';
 
 /* ── Inline SVG icons (use currentColor for dynamic tinting) ──────── */
 const IconOverview = () => (
@@ -109,12 +112,31 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/user')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data && !data.error) setUser(data); });
+  }, []);
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/auth/login');
+  };
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard';
     return pathname.startsWith(href);
   };
+
+  const badgeStyle = user
+    ? PLAN_BADGE_STYLES[user.plan]
+    : PLAN_BADGE_STYLES.starter;
+  const badgeLabel = user ? user.plan.charAt(0).toUpperCase() + user.plan.slice(1) : 'Starter';
 
   return (
     <div className="min-h-screen bg-[#F0EFED]">
@@ -140,16 +162,29 @@ export default function DashboardLayout({
               ClawProxy
             </span>
           </div>
-          <div
-            className="h-[19px] px-[10px] flex items-center justify-center rounded-[26px]"
-            style={{ backgroundColor: '#F3EEFF', border: '1px solid #7C3AED' }}
-          >
-            <span
-              className="text-[10px] leading-[1.15] text-[#7C3AED] uppercase"
-              style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.07em' }}
+          <div className="flex items-center gap-[12px]">
+            <div
+              className="h-[19px] px-[10px] flex items-center justify-center rounded-[26px]"
+              style={{ backgroundColor: badgeStyle.bg, border: `1px solid ${badgeStyle.border}` }}
             >
-              Team
-            </span>
+              <span
+                className="text-[10px] leading-[1.15] uppercase"
+                style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.07em', color: badgeStyle.text }}
+              >
+                {badgeLabel}
+              </span>
+            </div>
+            {user?.name && (
+              <span className="text-[13px] leading-[1.15] text-[#55554F] hidden sm:inline">
+                {user.name}
+              </span>
+            )}
+            <button
+              onClick={handleSignOut}
+              className="text-[12px] leading-[1.15] text-[#8F8F87] hover:text-[#111110] transition"
+            >
+              Sign out
+            </button>
           </div>
         </div>
       </div>
