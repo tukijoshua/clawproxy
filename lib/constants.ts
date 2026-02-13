@@ -6,6 +6,12 @@ export const PLANS: Record<Plan, { name: string; price: number; label: string; c
   team: { name: 'Team', price: 79, label: 'Team', checkoutUrl: 'https://whop.com/checkout/plan_34Xxy0vq5Wt8n' },
 } as const;
 
+export const PLAN_LIMITS = {
+  starter: { maxAgents: 1, maxRequests: 10000, historyDays: 7, loopDetection: false, compression: false, csvExport: false, spendingLimits: false, maxRules: 0, maxMembers: 1 },
+  pro:     { maxAgents: 3, maxRequests: Infinity, historyDays: 90, loopDetection: true, compression: true, csvExport: true, spendingLimits: true, maxRules: 5, maxMembers: 1 },
+  team:    { maxAgents: Infinity, maxRequests: Infinity, historyDays: 90, loopDetection: true, compression: true, csvExport: true, spendingLimits: true, maxRules: Infinity, maxMembers: 25 },
+} as const;
+
 export const PLAN_BADGE_STYLES: Record<Plan, { bg: string; border: string; text: string }> = {
   starter: { bg: '#F0EFED', border: '#B8B8B0', text: '#55554F' },
   pro: { bg: '#E2F3EA', border: '#17803D', text: '#17803D' },

@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { PLAN_LIMITS } from '@/lib/constants'
+import type { Plan } from '@/lib/supabase/types'
 import crypto from 'crypto'
 
 export async function POST() {
@@ -12,6 +14,30 @@ export async function POST() {
 
   if (authError || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Check agent limit for plan
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('plan, agent_count')
+    .eq('id', user.id)
+    .single()
+
+  const plan = (profile?.plan ?? 'starter') as Plan
+  const agentCount = profile?.agent_count ?? 0
+  const maxAgents = PLAN_LIMITS[plan].maxAgents
+
+  if (agentCount >= maxAgents) {
+    const upgradeTo = plan === 'starter' ? 'pro' : 'team'
+    return NextResponse.json(
+      {
+        error: 'upgrade_required',
+        message: `You've reached the ${maxAgents} agent limit on your ${plan} plan.`,
+        current_plan: plan,
+        upgrade_to: upgradeTo,
+      },
+      { status: 403 },
+    )
   }
 
   // Generate raw key: cp_sk_ + 48 hex chars

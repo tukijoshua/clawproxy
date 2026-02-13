@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { usePlan } from '@/lib/user-context';
 
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
 const fadeUp = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } } };
@@ -54,9 +56,21 @@ const dailyCostData = [
 ];
 
 export default function AnalyticsPage() {
+  const { canExportCsv, isPaid, plan } = usePlan();
   const [timeRange, setTimeRange] = useState<TimeRange>('month');
   const [hoveredSkill, setHoveredSkill] = useState<number | null>(null);
   const [selectedAgent, setSelectedAgent] = useState('All agents');
+
+  // Starter only gets "This month", Pro/Team get all options
+  const timeRangeOptions = isPaid
+    ? [
+        { key: 'month' as const, label: 'This month' },
+        { key: 'last' as const, label: 'Last month' },
+        { key: '90d' as const, label: 'Last 90 days' },
+      ]
+    : [
+        { key: 'month' as const, label: 'This month' },
+      ];
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="show">
@@ -78,11 +92,7 @@ export default function AnalyticsPage() {
         </div>
 
         <div className="flex gap-[8px] mt-[12px] sm:mt-[7px]">
-          {([
-            { key: 'month' as const, label: 'This month' },
-            { key: 'last' as const, label: 'Last month' },
-            { key: '90d' as const, label: 'Last 90 days' },
-          ]).map((item) => (
+          {timeRangeOptions.map((item) => (
             <button
               key={item.key}
               onClick={() => setTimeRange(item.key)}
@@ -105,31 +115,33 @@ export default function AnalyticsPage() {
         </div>
       </motion.div>
 
-      {/* Agent filter bar */}
-      <motion.div variants={fadeUp} className="flex items-center gap-[8px] mb-[16px] overflow-x-auto pb-[4px] px-[4px] sm:px-0">
-        {agents.map((a) => {
-          const isActive = selectedAgent === a.name;
-          return (
-            <button
-              key={a.name}
-              onClick={() => setSelectedAgent(a.name)}
-              className="shrink-0 h-[30px] px-[14px] rounded-[20px] flex items-center gap-[7px] cursor-pointer transition-all text-[12px] leading-[1.15]"
-              style={{
-                backgroundColor: isActive ? 'rgba(34,197,94,0.08)' : 'transparent',
-                border: isActive ? '1px solid #0C5526' : '1px solid #E2E1DC',
-                color: isActive ? '#111110' : '#8F8F87',
-                fontFamily: 'Aeonik Pro, sans-serif',
-              }}
-            >
-              <div
-                className="w-[7px] h-[7px] rounded-full"
-                style={{ backgroundColor: a.dotColor }}
-              />
-              {a.name}
-            </button>
-          );
-        })}
-      </motion.div>
+      {/* Agent filter bar (multi-agent plans only) */}
+      {isPaid && (
+        <motion.div variants={fadeUp} className="flex items-center gap-[8px] mb-[16px] overflow-x-auto pb-[4px] px-[4px] sm:px-0">
+          {agents.map((a) => {
+            const isActive = selectedAgent === a.name;
+            return (
+              <button
+                key={a.name}
+                onClick={() => setSelectedAgent(a.name)}
+                className="shrink-0 h-[30px] px-[14px] rounded-[20px] flex items-center gap-[7px] cursor-pointer transition-all text-[12px] leading-[1.15]"
+                style={{
+                  backgroundColor: isActive ? 'rgba(34,197,94,0.08)' : 'transparent',
+                  border: isActive ? '1px solid #0C5526' : '1px solid #E2E1DC',
+                  color: isActive ? '#111110' : '#8F8F87',
+                  fontFamily: 'Aeonik Pro, sans-serif',
+                }}
+              >
+                <div
+                  className="w-[7px] h-[7px] rounded-full"
+                  style={{ backgroundColor: a.dotColor }}
+                />
+                {a.name}
+              </button>
+            );
+          })}
+        </motion.div>
+      )}
 
       {/* ── Stat cards ──────────────────────────────────────── */}
       <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-[3px]">
@@ -249,9 +261,16 @@ export default function AnalyticsPage() {
           <span className="text-[11px] leading-[1.15] text-[#8F8F87] uppercase" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.064em' }}>
             Daily cost · Feb 2026
           </span>
-          <span className="text-[11.5px] leading-[1.15] text-[#2563EB] cursor-pointer hover:underline" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
-            Download report →
-          </span>
+          {canExportCsv ? (
+            <span className="text-[11.5px] leading-[1.15] text-[#2563EB] cursor-pointer hover:underline" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
+              Download report &rarr;
+            </span>
+          ) : (
+            <Link href="/dashboard/upgrade?plan=pro" className="flex items-center gap-[4px] text-[11.5px] leading-[1.15] text-[#8F8F87] hover:text-[#55554F] transition" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              Pro
+            </Link>
+          )}
         </div>
 
         {/* Chart */}
@@ -338,9 +357,16 @@ export default function AnalyticsPage() {
           <span className="text-[11px] leading-[1.15] text-[#8F8F87] uppercase" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.064em' }}>
             All skills ranked by cost
           </span>
-          <span className="text-[11.5px] leading-[1.15] text-[#2563EB] cursor-pointer hover:underline" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
-            Export →
-          </span>
+          {canExportCsv ? (
+            <span className="text-[11.5px] leading-[1.15] text-[#2563EB] cursor-pointer hover:underline" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
+              Export &rarr;
+            </span>
+          ) : (
+            <Link href="/dashboard/upgrade?plan=pro" className="flex items-center gap-[4px] text-[11.5px] leading-[1.15] text-[#8F8F87] hover:text-[#55554F] transition" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              Pro
+            </Link>
+          )}
         </div>
 
         {/* Table header */}

@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { UpgradeGate } from '@/components/upgrade-gate';
+import { usePlan } from '@/lib/user-context';
 
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const fadeUp = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } } };
@@ -103,6 +105,17 @@ function RoleDropdown({ role, onChange }: { role: Role; onChange: (r: Role) => v
 
 /* ── Page ─────────────────────────────────────────────────────────── */
 export default function MembersPage() {
+  const { canInviteMembers } = usePlan();
+
+  if (!canInviteMembers) {
+    return (
+      <div className="pt-[16px] px-[4px] sm:px-0">
+        <UpgradeGate feature="Team members" requiredPlan="team">
+          <></>
+        </UpgradeGate>
+      </div>
+    );
+  }
   const [members, setMembers] = useState<Member[]>(initialMembers);
   const [modalStep, setModalStep] = useState<0 | 1 | 2>(0);
   const [inviteEmail, setInviteEmail] = useState('');

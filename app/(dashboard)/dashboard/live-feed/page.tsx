@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePlan } from '@/lib/user-context';
 
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const fadeUp = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } } };
@@ -64,6 +65,7 @@ const feedData: FeedRow[] = [
 ];
 
 export default function LiveFeedPage() {
+  const { isPaid } = usePlan();
   const [rows, setRows] = useState(feedData);
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
   const [selectedAgent, setSelectedAgent] = useState('All agents');
@@ -99,31 +101,33 @@ export default function LiveFeedPage() {
         </h1>
       </motion.div>
 
-      {/* Agent filter bar */}
-      <motion.div variants={fadeUp} className="flex items-center gap-[8px] mb-[16px] overflow-x-auto pb-[4px] px-[4px] sm:px-0">
-        {agents.map((a) => {
-          const isActive = selectedAgent === a.name;
-          return (
-            <button
-              key={a.name}
-              onClick={() => setSelectedAgent(a.name)}
-              className="shrink-0 h-[30px] px-[14px] rounded-[20px] flex items-center gap-[7px] cursor-pointer transition-all text-[12px] leading-[1.15]"
-              style={{
-                backgroundColor: isActive ? 'rgba(34,197,94,0.08)' : 'transparent',
-                border: isActive ? '1px solid #0C5526' : '1px solid #E2E1DC',
-                color: isActive ? '#111110' : '#8F8F87',
-                fontFamily: 'Aeonik Pro, sans-serif',
-              }}
-            >
-              <div
-                className="w-[7px] h-[7px] rounded-full"
-                style={{ backgroundColor: a.dotColor }}
-              />
-              {a.name}
-            </button>
-          );
-        })}
-      </motion.div>
+      {/* Agent filter bar (multi-agent plans only) */}
+      {isPaid && (
+        <motion.div variants={fadeUp} className="flex items-center gap-[8px] mb-[16px] overflow-x-auto pb-[4px] px-[4px] sm:px-0">
+          {agents.map((a) => {
+            const isActive = selectedAgent === a.name;
+            return (
+              <button
+                key={a.name}
+                onClick={() => setSelectedAgent(a.name)}
+                className="shrink-0 h-[30px] px-[14px] rounded-[20px] flex items-center gap-[7px] cursor-pointer transition-all text-[12px] leading-[1.15]"
+                style={{
+                  backgroundColor: isActive ? 'rgba(34,197,94,0.08)' : 'transparent',
+                  border: isActive ? '1px solid #0C5526' : '1px solid #E2E1DC',
+                  color: isActive ? '#111110' : '#8F8F87',
+                  fontFamily: 'Aeonik Pro, sans-serif',
+                }}
+              >
+                <div
+                  className="w-[7px] h-[7px] rounded-full"
+                  style={{ backgroundColor: a.dotColor }}
+                />
+                {a.name}
+              </button>
+            );
+          })}
+        </motion.div>
+      )}
 
       {/* Table */}
       <motion.div

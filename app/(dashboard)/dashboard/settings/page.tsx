@@ -2,11 +2,14 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { UpgradeGate } from '@/components/upgrade-gate';
+import { usePlan } from '@/lib/user-context';
 
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const fadeUp = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } } };
 
 export default function SettingsPage() {
+  const { canUseLoopDetection, canUseCompression, canUseSpendingLimits } = usePlan();
   const [dailyLimit, setDailyLimit] = useState('15.00');
   const [monthlyLimit, setMonthlyLimit] = useState('300.00');
   const [alert75, setAlert75] = useState(true);
@@ -66,65 +69,67 @@ export default function SettingsPage() {
       {/* ── Spending Controls + Model Routing ────────────────── */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-2 gap-[3px] mt-[3px]">
         {/* Spending Controls */}
-        <div className="bg-white border border-[#E4E3DE] rounded-[10px] shadow-[0_1px_2px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] px-[21px] py-[21px]">
-          <span className="text-[12px] leading-[1.15] text-[#9C9C96] uppercase block" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.067em' }}>
-            Spending controls
-          </span>
+        <UpgradeGate feature="Spending limits" requiredPlan="pro">
+          <div className="bg-white border border-[#E4E3DE] rounded-[10px] shadow-[0_1px_2px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] px-[21px] py-[21px]">
+            <span className="text-[12px] leading-[1.15] text-[#9C9C96] uppercase block" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.067em' }}>
+              Spending controls
+            </span>
 
-          {/* Daily limit */}
-          <span className="text-[11px] leading-[1.15] text-[#5C5C58] uppercase block mt-[12px]" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.045em' }}>
-            Daily limit ($)
-          </span>
-          <input
-            type="text"
-            value={dailyLimit}
-            onChange={(e) => setDailyLimit(e.target.value)}
-            className="w-full h-[37px] mt-[4px] px-[13px] rounded-[6px] border border-[#E4E3DE] text-[13px] text-black outline-none focus:border-[#17803D] transition"
-            style={{ fontFamily: 'Aeonik Pro, sans-serif' }}
-          />
+            {/* Daily limit */}
+            <span className="text-[11px] leading-[1.15] text-[#5C5C58] uppercase block mt-[12px]" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.045em' }}>
+              Daily limit ($)
+            </span>
+            <input
+              type="text"
+              value={dailyLimit}
+              onChange={(e) => setDailyLimit(e.target.value)}
+              className="w-full h-[37px] mt-[4px] px-[13px] rounded-[6px] border border-[#E4E3DE] text-[13px] text-black outline-none focus:border-[#17803D] transition"
+              style={{ fontFamily: 'Aeonik Pro, sans-serif' }}
+            />
 
-          {/* Monthly limit */}
-          <span className="text-[11px] leading-[1.15] text-[#5C5C58] uppercase block mt-[12px]" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.045em' }}>
-            Monthly limit ($)
-          </span>
-          <input
-            type="text"
-            value={monthlyLimit}
-            onChange={(e) => setMonthlyLimit(e.target.value)}
-            className="w-full h-[37px] mt-[4px] px-[13px] rounded-[6px] border border-[#E4E3DE] text-[13px] text-black outline-none focus:border-[#17803D] transition"
-            style={{ fontFamily: 'Aeonik Pro, sans-serif' }}
-          />
+            {/* Monthly limit */}
+            <span className="text-[11px] leading-[1.15] text-[#5C5C58] uppercase block mt-[12px]" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.045em' }}>
+              Monthly limit ($)
+            </span>
+            <input
+              type="text"
+              value={monthlyLimit}
+              onChange={(e) => setMonthlyLimit(e.target.value)}
+              className="w-full h-[37px] mt-[4px] px-[13px] rounded-[6px] border border-[#E4E3DE] text-[13px] text-black outline-none focus:border-[#17803D] transition"
+              style={{ fontFamily: 'Aeonik Pro, sans-serif' }}
+            />
 
-          {/* Alert toggles */}
-          <div className="mt-[12px]" style={{ borderTop: '1px solid #E4E3DE' }}>
-            <div className="flex items-center justify-between py-[15px]" style={{ borderBottom: '1px solid #E4E3DE' }}>
-              <div>
-                <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Alert at 75%</span>
-                <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Email notification</span>
+            {/* Alert toggles */}
+            <div className="mt-[12px]" style={{ borderTop: '1px solid #E4E3DE' }}>
+              <div className="flex items-center justify-between py-[15px]" style={{ borderBottom: '1px solid #E4E3DE' }}>
+                <div>
+                  <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Alert at 75%</span>
+                  <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Email notification</span>
+                </div>
+                <button
+                  onClick={() => setAlert75(!alert75)}
+                  className="w-[38px] h-[20px] rounded-[10px] relative transition-colors"
+                  style={{ backgroundColor: alert75 ? '#157A3E' : '#D4D3CE' }}
+                >
+                  <div className="absolute top-[2px] w-[16px] h-[16px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition-all" style={{ left: alert75 ? '20px' : '2px' }} />
+                </button>
               </div>
-              <button
-                onClick={() => setAlert75(!alert75)}
-                className="w-[38px] h-[20px] rounded-[10px] relative transition-colors"
-                style={{ backgroundColor: alert75 ? '#157A3E' : '#D4D3CE' }}
-              >
-                <div className="absolute top-[2px] w-[16px] h-[16px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition-all" style={{ left: alert75 ? '20px' : '2px' }} />
-              </button>
-            </div>
-            <div className="flex items-center justify-between py-[15px]">
-              <div>
-                <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Alert at 90%</span>
-                <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Email + dashboard</span>
+              <div className="flex items-center justify-between py-[15px]">
+                <div>
+                  <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Alert at 90%</span>
+                  <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Email + dashboard</span>
+                </div>
+                <button
+                  onClick={() => setAlert90(!alert90)}
+                  className="w-[38px] h-[20px] rounded-[10px] relative transition-colors"
+                  style={{ backgroundColor: alert90 ? '#157A3E' : '#D4D3CE' }}
+                >
+                  <div className="absolute top-[2px] w-[16px] h-[16px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition-all" style={{ left: alert90 ? '20px' : '2px' }} />
+                </button>
               </div>
-              <button
-                onClick={() => setAlert90(!alert90)}
-                className="w-[38px] h-[20px] rounded-[10px] relative transition-colors"
-                style={{ backgroundColor: alert90 ? '#157A3E' : '#D4D3CE' }}
-              >
-                <div className="absolute top-[2px] w-[16px] h-[16px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition-all" style={{ left: alert90 ? '20px' : '2px' }} />
-              </button>
             </div>
           </div>
-        </div>
+        </UpgradeGate>
 
         {/* Model Routing */}
         <div className="bg-white border border-[#E4E3DE] rounded-[10px] shadow-[0_1px_2px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] px-[21px] py-[21px]">
@@ -177,39 +182,43 @@ export default function SettingsPage() {
       </motion.div>
 
       {/* ── Features ────────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="bg-white border border-[#E4E3DE] rounded-[10px] shadow-[0_1px_2px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] px-[21px] py-[21px] mt-[3px] mb-[7px]">
-        <span className="text-[12px] leading-[1.15] text-[#9C9C96] uppercase block" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.067em' }}>
-          Features
-        </span>
+      <motion.div variants={fadeUp} className="mt-[3px] mb-[7px]">
+        <UpgradeGate feature="Loop detection" requiredPlan="pro">
+          <div className="bg-white border border-[#E4E3DE] rounded-[10px] shadow-[0_1px_2px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] px-[21px] py-[21px]">
+            <span className="text-[12px] leading-[1.15] text-[#9C9C96] uppercase block" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.067em' }}>
+              Features
+            </span>
 
-        <div className="mt-[8px]" style={{ borderTop: '1px solid #E4E3DE' }}>
-          <div className="flex items-center justify-between py-[15px]" style={{ borderBottom: '1px solid #E4E3DE' }}>
-            <div>
-              <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Loop detection</span>
-              <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Block repeated requests</span>
+            <div className="mt-[8px]" style={{ borderTop: '1px solid #E4E3DE' }}>
+              <div className="flex items-center justify-between py-[15px]" style={{ borderBottom: '1px solid #E4E3DE' }}>
+                <div>
+                  <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Loop detection</span>
+                  <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Block repeated requests</span>
+                </div>
+                <button
+                  onClick={() => setLoopDetection(!loopDetection)}
+                  className="w-[38px] h-[20px] rounded-[10px] relative transition-colors shrink-0"
+                  style={{ backgroundColor: loopDetection ? '#157A3E' : '#D4D3CE' }}
+                >
+                  <div className="absolute top-[2px] w-[16px] h-[16px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition-all" style={{ left: loopDetection ? '20px' : '2px' }} />
+                </button>
+              </div>
+              <div className="flex items-center justify-between py-[15px]">
+                <div>
+                  <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Context compression</span>
+                  <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>200K→40K tokens</span>
+                </div>
+                <button
+                  onClick={() => setCompression(!compression)}
+                  className="w-[38px] h-[20px] rounded-[10px] relative transition-colors shrink-0"
+                  style={{ backgroundColor: compression ? '#157A3E' : '#D4D3CE' }}
+                >
+                  <div className="absolute top-[2px] w-[16px] h-[16px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition-all" style={{ left: compression ? '20px' : '2px' }} />
+                </button>
+              </div>
             </div>
-            <button
-              onClick={() => setLoopDetection(!loopDetection)}
-              className="w-[38px] h-[20px] rounded-[10px] relative transition-colors shrink-0"
-              style={{ backgroundColor: loopDetection ? '#157A3E' : '#D4D3CE' }}
-            >
-              <div className="absolute top-[2px] w-[16px] h-[16px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition-all" style={{ left: loopDetection ? '20px' : '2px' }} />
-            </button>
           </div>
-          <div className="flex items-center justify-between py-[15px]">
-            <div>
-              <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>Context compression</span>
-              <span className="text-[13px] leading-[1.3] text-[#141413] block" style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>200K→40K tokens</span>
-            </div>
-            <button
-              onClick={() => setCompression(!compression)}
-              className="w-[38px] h-[20px] rounded-[10px] relative transition-colors shrink-0"
-              style={{ backgroundColor: compression ? '#157A3E' : '#D4D3CE' }}
-            >
-              <div className="absolute top-[2px] w-[16px] h-[16px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition-all" style={{ left: compression ? '20px' : '2px' }} />
-            </button>
-          </div>
-        </div>
+        </UpgradeGate>
       </motion.div>
     </motion.div>
   );

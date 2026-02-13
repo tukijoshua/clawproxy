@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { PLAN_BADGE_STYLES } from '@/lib/constants';
+import { UserProvider } from '@/lib/user-context';
 import type { User } from '@/lib/supabase/types';
 
 /* ── Inline SVG icons (use currentColor for dynamic tinting) ──────── */
@@ -289,7 +290,9 @@ export default function DashboardLayout({
 
         {/* ─── Main content ────────────────────────────────────── */}
         <main className="flex-1 sm:pl-[5px] min-w-0">
-          {children}
+          <UserProvider user={user}>
+            {children}
+          </UserProvider>
         </main>
       </div>
     </div>

@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { usePlan } from '@/lib/user-context';
 
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
 const fadeUp = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } } };
@@ -68,6 +70,7 @@ const activityHeights = [
 ];
 
 export default function DashboardPage() {
+  const { isPaid, canExportCsv, canUseLoopDetection } = usePlan();
   const [timeRange, setTimeRange] = useState<TimeRange>('today');
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
   const [hoveredSkill, setHoveredSkill] = useState<number | null>(null);
@@ -130,35 +133,37 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* ── Agent filter bar (Team) ─────────────────────────── */}
-      <motion.div variants={fadeUp} className="flex items-center gap-[8px] mb-[10px] overflow-x-auto pb-[4px] px-[4px] sm:px-0">
-        {agents.map((agent) => (
-          <button
-            key={agent.name}
-            onClick={() => setSelectedAgent(agent.name)}
-            className="shrink-0 h-[34px] flex items-center gap-[8px] px-[15px] transition-all cursor-pointer"
-            style={{
-              borderRadius: selectedAgent === agent.name ? '7px' : '8px',
-              backgroundColor: selectedAgent === agent.name ? 'rgba(34,197,94,0.08)' : '#FFFFFF',
-              border: selectedAgent === agent.name ? '1px solid #0C5526' : '1px solid #E2E1DC',
-            }}
-          >
-            <div
-              className="w-[7px] h-[7px] rounded-full shrink-0"
+      {/* ── Agent filter bar (multi-agent plans only) ──────── */}
+      {isPaid && (
+        <motion.div variants={fadeUp} className="flex items-center gap-[8px] mb-[10px] overflow-x-auto pb-[4px] px-[4px] sm:px-0">
+          {agents.map((agent) => (
+            <button
+              key={agent.name}
+              onClick={() => setSelectedAgent(agent.name)}
+              className="shrink-0 h-[34px] flex items-center gap-[8px] px-[15px] transition-all cursor-pointer"
               style={{
-                backgroundColor: agent.dotColor,
-                boxShadow: agent.glow ? '0px 0px 6px 0px rgba(34,197,94,0.4)' : 'none',
+                borderRadius: selectedAgent === agent.name ? '7px' : '8px',
+                backgroundColor: selectedAgent === agent.name ? 'rgba(34,197,94,0.08)' : '#FFFFFF',
+                border: selectedAgent === agent.name ? '1px solid #0C5526' : '1px solid #E2E1DC',
               }}
-            />
-            <span
-              className="text-[12.5px] leading-[1.15] text-[#111110] whitespace-nowrap"
-              style={{ fontFamily: 'Aeonik Pro, sans-serif' }}
             >
-              {agent.name}
-            </span>
-          </button>
-        ))}
-      </motion.div>
+              <div
+                className="w-[7px] h-[7px] rounded-full shrink-0"
+                style={{
+                  backgroundColor: agent.dotColor,
+                  boxShadow: agent.glow ? '0px 0px 6px 0px rgba(34,197,94,0.4)' : 'none',
+                }}
+              />
+              <span
+                className="text-[12.5px] leading-[1.15] text-[#111110] whitespace-nowrap"
+                style={{ fontFamily: 'Aeonik Pro, sans-serif' }}
+              >
+                {agent.name}
+              </span>
+            </button>
+          ))}
+        </motion.div>
+      )}
 
       {/* ── Stat cards row ──────────────────────────────────── */}
       <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-5 gap-[3px]">
@@ -262,24 +267,44 @@ export default function DashboardPage() {
           className="bg-white border border-[#E2E1DC] rounded-[12px] shadow-claw-sm relative overflow-hidden"
           style={{ height: 135 }}
         >
-          <Image
-            src="/images/dashboard/shield-energy.svg"
-            alt=""
-            width={36}
-            height={36}
-            className="absolute right-[21px] top-[17px]"
-          />
-          <div className="px-[21px] pt-[27px]">
-            <span className="text-[12px] leading-[1.15] text-[#8F8F87] block" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '-0.008em' }}>
-              Loops killed
-            </span>
-            <span className="text-[30px] leading-[1] text-[#111110] block mt-[18px]" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '-0.04em' }}>
-              2
-            </span>
-            <span className="text-[11.5px] leading-[1.15] text-[#8F8F87] block mt-[8px]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
-              Saved ~$0.89
-            </span>
-          </div>
+          {canUseLoopDetection ? (
+            <>
+              <Image
+                src="/images/dashboard/shield-energy.svg"
+                alt=""
+                width={36}
+                height={36}
+                className="absolute right-[21px] top-[17px]"
+              />
+              <div className="px-[21px] pt-[27px]">
+                <span className="text-[12px] leading-[1.15] text-[#8F8F87] block" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '-0.008em' }}>
+                  Loops killed
+                </span>
+                <span className="text-[30px] leading-[1] text-[#111110] block mt-[18px]" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '-0.04em' }}>
+                  2
+                </span>
+                <span className="text-[11.5px] leading-[1.15] text-[#8F8F87] block mt-[8px]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
+                  Saved ~$0.89
+                </span>
+              </div>
+            </>
+          ) : (
+            <Link href="/dashboard/upgrade?plan=pro" className="block px-[21px] pt-[27px] h-full">
+              <span className="text-[12px] leading-[1.15] text-[#8F8F87] block" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '-0.008em' }}>
+                Loops killed
+              </span>
+              <div className="flex items-center gap-[6px] mt-[18px]">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8F8F87" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <span className="text-[13px] text-[#8F8F87]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>Pro feature</span>
+              </div>
+              <span className="text-[11.5px] leading-[1.15] text-[#17803D] block mt-[8px]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
+                Upgrade &rarr;
+              </span>
+            </Link>
+          )}
         </motion.div>
 
         {/* Active agents (Team) */}
@@ -317,9 +342,16 @@ export default function DashboardPage() {
             <span className="text-[11px] leading-[1.15] text-[#8F8F87] uppercase" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.064em' }}>
               Cost comparison · This week
             </span>
-            <span className="text-[11.5px] leading-[1.15] text-[#2563EB] cursor-pointer hover:underline" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
-              Export CSV →
-            </span>
+            {canExportCsv ? (
+              <span className="text-[11.5px] leading-[1.15] text-[#2563EB] cursor-pointer hover:underline" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
+                Export CSV &rarr;
+              </span>
+            ) : (
+              <Link href="/dashboard/upgrade?plan=pro" className="flex items-center gap-[4px] text-[11.5px] leading-[1.15] text-[#8F8F87] hover:text-[#55554F] transition" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                Pro
+              </Link>
+            )}
           </div>
 
           {/* Chart area */}

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import { usePlan } from '@/lib/user-context';
 
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const fadeUp = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } } };
@@ -24,6 +26,8 @@ const agentColors = [
 ];
 
 export default function AgentsPage() {
+  const { maxAgents, agentCount, plan } = usePlan();
+  const atLimit = agentCount >= maxAgents;
   const [modalStep, setModalStep] = useState<0 | 1 | 2>(0); // 0 = closed, 1 = step 1, 2 = step 2
   const [newAgentName, setNewAgentName] = useState('');
   const [selectedColor, setSelectedColor] = useState('#17803D');
@@ -57,13 +61,27 @@ export default function AgentsPage() {
             Each agent gets its own API key and per-agent tracking.
           </p>
         </div>
-        <button
-          onClick={() => setModalStep(1)}
-          className="h-[37px] px-[20px] rounded-[6px] text-[13px] text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition mt-[12px] sm:mt-[10px] shrink-0"
-          style={{ backgroundColor: '#17803D', fontFamily: 'Aeonik Pro, sans-serif' }}
-        >
-          + Add agent
-        </button>
+        {atLimit ? (
+          <Link
+            href={`/dashboard/upgrade?plan=${plan === 'starter' ? 'pro' : 'team'}`}
+            className="h-[37px] px-[20px] rounded-[6px] text-[13px] text-white flex items-center justify-center hover:opacity-90 transition mt-[12px] sm:mt-[10px] shrink-0 gap-[6px]"
+            style={{ backgroundColor: '#8F8F87', fontFamily: 'Aeonik Pro, sans-serif' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            {plan === 'starter' ? 'Upgrade to Pro for up to 3 agents' : 'Upgrade to Team for unlimited agents'}
+          </Link>
+        ) : (
+          <button
+            onClick={() => setModalStep(1)}
+            className="h-[37px] px-[20px] rounded-[6px] text-[13px] text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition mt-[12px] sm:mt-[10px] shrink-0"
+            style={{ backgroundColor: '#17803D', fontFamily: 'Aeonik Pro, sans-serif' }}
+          >
+            + Add agent
+          </button>
+        )}
       </motion.div>
 
       {/* Search bar */}
