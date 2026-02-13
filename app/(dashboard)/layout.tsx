@@ -182,12 +182,13 @@ export default function DashboardLayout({
                 <div className="w-[14px] h-[2px] bg-[#111110] rounded" />
               </div>
             </button>
-            <span
+            <Link
+              href="/dashboard"
               className="text-[23.6px] tracking-[-0.027em] text-black leading-[1.15]"
               style={{ fontFamily: 'PP Mondwest, serif' }}
             >
               ClawProxy
-            </span>
+            </Link>
           </div>
           <div className="flex items-center gap-[12px]">
             <div
