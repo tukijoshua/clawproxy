@@ -56,7 +56,7 @@ export async function GET(
     .update({ status: newStatus })
     .eq('id', invitation.id)
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.ai'
 
   if (action === 'accept') {
     // Redirect to signup/dashboard

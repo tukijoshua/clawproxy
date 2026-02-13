@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.ai'
 
   // Get all paid users
   const { data: users, error } = await supabase

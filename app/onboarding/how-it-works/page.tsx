@@ -75,7 +75,7 @@ export default function HowItWorksPage() {
 "apiBaseUrl": "https://api.anthropic.com"
 
 // After (smart — we route to the right model)
-"apiBaseUrl": "https://api.clawproxy.com/v1"`}
+"apiBaseUrl": "https://api.clawproxy.ai/v1"`}
                 </pre>
               </div>
             </div>

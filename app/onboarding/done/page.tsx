@@ -180,9 +180,7 @@ export default function DonePage() {
           {/* Secondary buttons */}
           <div className="flex items-center gap-[6px] w-full">
             <motion.a
-              href="https://docs.clawproxy.com"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/docs"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="flex-1 h-[43px] bg-[#F0EFED] rounded-lg flex items-center justify-center gap-[7px] cursor-pointer"

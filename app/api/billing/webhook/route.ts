@@ -67,7 +67,7 @@ export async function POST(request: Request) {
 
         // Send cancellation email
         if (invalidUser) {
-          const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.com'
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.ai'
           const template = subscriptionCancelledEmail({
             name: invalidUser.name || '',
             plan: invalidUser.plan || 'pro',
@@ -97,7 +97,7 @@ export async function POST(request: Request) {
           .single()
 
         if (failedUser) {
-          const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.com'
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.ai'
           const template = paymentFailedEmail({
             name: failedUser.name || '',
             updatePaymentUrl: `${appUrl}/dashboard/settings/billing`,

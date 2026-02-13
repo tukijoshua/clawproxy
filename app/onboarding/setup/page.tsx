@@ -148,10 +148,10 @@ function OneCommandExpanded() {
             className="text-[11.5px] sm:text-[12.5px] leading-[1.7] whitespace-pre"
             style={{ fontFamily: 'JetBrains Mono, monospace', color: '#E4E4E7' }}
           >
-            curl -sL https://clawproxy.com/setup | bash
+            curl -sL https://clawproxy.ai/setup | bash
           </pre>
         </div>
-        <CopyBtn text="curl -sL https://clawproxy.com/setup | bash" />
+        <CopyBtn text="curl -sL https://clawproxy.ai/setup | bash" />
       </div>
       <div
         className="w-full"
@@ -191,7 +191,7 @@ function ManualConfigExpanded() {
           >
             <span style={{ color: '#E4E4E7' }}>{'// Open ~/.openclaw/openclaw.json and add:'}</span>
             {'\n'}
-            <span style={{ color: '#6EE7B7' }}>{'"apiBaseUrl": "https://api.clawproxy.com/v1",'}</span>
+            <span style={{ color: '#6EE7B7' }}>{'"apiBaseUrl": "https://api.clawproxy.ai/v1",'}</span>
             {'\n'}
             <span style={{ color: '#6EE7B7' }}>{'"customHeaders": {'}</span>
             {'\n'}
@@ -201,7 +201,7 @@ function ManualConfigExpanded() {
           </pre>
         </div>
         <CopyBtn
-          text={`"apiBaseUrl": "https://api.clawproxy.com/v1",\n"customHeaders": {\n  "x-clawproxy-key": "YOUR_API_KEY"\n}`}
+          text={`"apiBaseUrl": "https://api.clawproxy.ai/v1",\n"customHeaders": {\n  "x-clawproxy-key": "YOUR_API_KEY"\n}`}
         />
       </div>
       <div
@@ -242,12 +242,12 @@ function DockerExpanded() {
           >
             <span style={{ color: '#E4E4E7' }}>{'# Add to your docker-compose.yml or .env:'}</span>
             {'\n'}
-            <span style={{ color: '#6EE7B7' }}>OPENCLAW_API_BASE_URL=https://api.clawproxy.com/v1</span>
+            <span style={{ color: '#6EE7B7' }}>OPENCLAW_API_BASE_URL=https://api.clawproxy.ai/v1</span>
             {'\n'}
             <span style={{ color: '#6EE7B7' }}>OPENCLAW_CUSTOM_HEADERS=x-clawproxy-key:YOUR_API_KEY</span>
           </pre>
         </div>
-        <CopyBtn text="OPENCLAW_API_BASE_URL=https://api.clawproxy.com/v1&#10;OPENCLAW_CUSTOM_HEADERS=x-clawproxy-key:YOUR_API_KEY" />
+        <CopyBtn text="OPENCLAW_API_BASE_URL=https://api.clawproxy.ai/v1&#10;OPENCLAW_CUSTOM_HEADERS=x-clawproxy-key:YOUR_API_KEY" />
       </div>
       <div
         className="w-full"
@@ -401,14 +401,14 @@ function CopyPasteExpanded() {
             className="text-[11.5px] sm:text-[12.5px] leading-[1.7] whitespace-pre"
             style={{ fontFamily: 'JetBrains Mono, monospace' }}
           >
-            <span style={{ color: '#E4E4E7' }}>curl -sL https://clawproxy.com/setup | bash</span>
+            <span style={{ color: '#E4E4E7' }}>curl -sL https://clawproxy.ai/setup | bash</span>
             {'\n'}
             <span style={{ color: '#ADADAD' }}>{'# Windows? Use PowerShell instead:'}</span>
             {'\n'}
-            <span style={{ color: '#ADADAD' }}>irm https://clawproxy.com/setup.ps1 | iex</span>
+            <span style={{ color: '#ADADAD' }}>irm https://clawproxy.ai/setup.ps1 | iex</span>
           </pre>
         </div>
-        <CopyBtn text="curl -sL https://clawproxy.com/setup | bash" />
+        <CopyBtn text="curl -sL https://clawproxy.ai/setup | bash" />
       </div>
 
       <div

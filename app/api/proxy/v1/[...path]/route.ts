@@ -114,7 +114,7 @@ export async function POST(
   const upstreamHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-    'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL ?? 'https://clawproxy.com',
+    'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL ?? 'https://clawproxy.ai',
     'X-Title': 'ClawProxy',
   }
 
@@ -310,7 +310,7 @@ export async function GET(
   const res = await fetch(`${OPENROUTER_BASE}/${pathStr}`, {
     headers: {
       'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL ?? 'https://clawproxy.com',
+      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL ?? 'https://clawproxy.ai',
     },
   })
 

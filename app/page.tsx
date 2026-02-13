@@ -699,7 +699,7 @@ export default function Home() {
               {/* Code snippet */}
               <div className="rounded-[5px] px-[14px] py-[14px] mb-[15px]" style={{ backgroundColor: '#383838' }}>
                 <code className="text-[11.5px] leading-[1.7] text-[#6EE7B7] block whitespace-pre-wrap" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                  {`"apiBaseUrl":\n"https://api.clawproxy.com/v1"\n"customHeaders": { "x-clawproxy-key":\n"cp_sk_..." }`}
+                  {`"apiBaseUrl":\n"https://api.clawproxy.ai/v1"\n"customHeaders": { "x-clawproxy-key":\n"cp_sk_..." }`}
                 </code>
               </div>
 
@@ -926,7 +926,7 @@ export default function Home() {
       {/* ── Footer ───────────────────────────────────────────────────────── */}
       <FadeIn y={0} className="mt-[80px] sm:mt-[184px]">
       <footer className="border-t border-[#E2E1DC]">
-        <div className="max-w-[1425px] mx-auto px-[16px] sm:px-[40px] py-[24px] sm:py-0 sm:h-[125px] flex flex-col sm:flex-row items-center justify-between gap-[16px]">
+        <div className="max-w-[1425px] mx-auto px-[16px] sm:px-[40px] py-[24px] sm:py-[32px] flex flex-col items-center gap-[20px]">
           <Link href="/">
             <span
               className="text-[24px] text-black"
@@ -937,22 +937,40 @@ export default function Home() {
           </Link>
 
           <div className="flex items-center gap-[20px] sm:gap-[36px] flex-wrap justify-center">
-            {['Docs', 'Pricing', 'API', 'GitHub', 'Twitter / X'].map((link) => (
+            {[
+              { label: 'Docs', href: '/docs' },
+              { label: 'Pricing', href: '#pricing' },
+              { label: 'GitHub', href: 'https://github.com/tukijoshua', external: true },
+              { label: 'Twitter / X', href: 'https://x.com/TukiFromKL', external: true },
+            ].map((link) => (
               <a
-                key={link}
-                href={link === 'Pricing' ? '#pricing' : link === 'GitHub' ? 'https://github.com/clawproxy' : link === 'Twitter / X' ? 'https://x.com/clawproxy' : '#'}
+                key={link.label}
+                href={link.href}
                 className="text-[12px] sm:text-[13px] text-[#565656] hover:text-black transition"
                 style={{ fontFamily: 'Aeonik Pro, sans-serif' }}
-                {...(link === 'GitHub' || link === 'Twitter / X' ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
               >
-                {link}
+                {link.label}
               </a>
             ))}
           </div>
 
-          <span className="text-[11px] sm:text-[12px] text-[#484848]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
-            © 2026 ClawProxy. All rights reserved.
-          </span>
+          <div className="flex flex-col items-center gap-[8px]">
+            <span className="text-[11px] sm:text-[12px] text-[#484848]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
+              © 2026 ClawProxy. All rights reserved.
+            </span>
+            <span className="text-[11px] sm:text-[12px] text-[#8F8F87]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
+              Built with love by{' '}
+              <a
+                href="https://x.com/TukiFromKL"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#17803D] hover:underline"
+              >
+                Tuki Joshua
+              </a>
+            </span>
+          </div>
         </div>
       </footer>
       </FadeIn>

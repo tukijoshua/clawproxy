@@ -20,7 +20,7 @@ export async function sendEmail({
 }): Promise<{ success: boolean; id?: string; error?: string }> {
   try {
     const fromAddress =
-      process.env.RESEND_FROM_EMAIL || 'ClawProxy <notifications@clawproxy.com>';
+      process.env.RESEND_FROM_EMAIL || 'Tuki from ClawProxy <hello@clawproxy.ai>';
     const { data, error } = await getResend().emails.send({
       from: fromAddress,
       to,

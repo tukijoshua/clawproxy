@@ -53,10 +53,11 @@ function SignupPageInner() {
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: {
           name: `${firstName} ${lastName}`.trim(),
           first_name: firstName,
@@ -69,10 +70,12 @@ function SignupPageInner() {
     if (error) {
       setError(error.message);
       setLoading(false);
+    } else if (data.user && !data.session) {
+      // Email confirmation required — redirect to confirmation page
+      router.push(`/auth/confirm-email?email=${encodeURIComponent(email)}`);
     } else {
-      // Fire-and-forget welcome email for email/password signups
+      // Auto-confirmed (e.g. email confirmation disabled) — go to onboarding
       fetch('/api/auth/welcome', { method: 'POST' }).catch(() => {});
-
       if (isPaidPlan) {
         window.location.href = PLANS[intendedPlan].checkoutUrl!;
       } else {

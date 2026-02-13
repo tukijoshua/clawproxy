@@ -20,7 +20,10 @@ function layout(content: string): string {
         <tr><td style="padding:20px 32px;border-top:1px solid #E2E1DC;">
           <p style="margin:0;font-size:12px;color:#8F8F87;line-height:1.5;">
             &copy; ${new Date().getFullYear()} ClawProxy. All rights reserved.<br>
-            <a href="https://clawproxy.com" style="color:#8F8F87;text-decoration:underline;">clawproxy.com</a>
+            <a href="https://clawproxy.ai" style="color:#8F8F87;text-decoration:underline;">clawproxy.ai</a>
+          </p>
+          <p style="margin:8px 0 0;font-size:11px;color:#B8B8B0;line-height:1.5;">
+            Built with love by <a href="https://x.com/TukiFromKL" style="color:#B8B8B0;text-decoration:underline;">Tuki Joshua</a>
           </p>
         </td></tr>
       </table>
@@ -40,21 +43,32 @@ export function welcomeEmail({ name }: { name: string }): {
   subject: string;
   html: string;
 } {
-  const displayName = name || 'there';
+  const firstName = (name || '').split(' ')[0] || 'there';
   return {
-    subject: 'Welcome to ClawProxy!',
+    subject: `Welcome to ClawProxy, ${firstName}! Your AI costs are about to drop.`,
     html: layout(`
-      <h1 style="margin:0 0 12px;font-size:22px;color:#111110;font-weight:600;">Welcome, ${displayName}!</h1>
-      <p style="margin:0 0 16px;font-size:15px;color:#55554F;line-height:1.6;">
-        Your account is ready. ClawProxy sits between your AI agents and LLM providers to slash costs with smart caching, model routing, and budget controls.
+      <h1 style="margin:0 0 16px;font-size:24px;color:#111110;font-weight:600;">Hey ${firstName}!</h1>
+      <p style="margin:0 0 16px;font-size:15px;color:#55554F;line-height:1.7;">
+        Welcome to ClawProxy. You just made one of the smartest decisions for your AI workflow. Most developers are overpaying by 60-70% on LLM costs without even knowing it.
       </p>
-      <p style="margin:0 0 20px;font-size:15px;color:#55554F;line-height:1.6;">Here's how to get started:</p>
-      <ol style="margin:0 0 20px;padding-left:20px;font-size:14px;color:#55554F;line-height:1.8;">
-        <li>Generate your first API key</li>
-        <li>Point your agents to your ClawProxy endpoint</li>
-        <li>Set up budget limits and routing rules</li>
-      </ol>
-      ${button('Go to Dashboard', 'https://clawproxy.com/dashboard')}
+      <p style="margin:0 0 20px;font-size:15px;color:#55554F;line-height:1.7;">
+        That changes today. ClawProxy sits between your agents and the API, automatically routing each request to the cheapest model that can handle it. Same quality. Way less spend.
+      </p>
+      <div style="margin:0 0 24px;padding:16px 20px;background:#E8F5EC;border-radius:8px;">
+        <p style="margin:0;font-size:14px;color:#0A5C26;line-height:1.6;font-weight:600;">
+          Here's your 2-minute setup:
+        </p>
+        <ol style="margin:8px 0 0;padding-left:20px;font-size:14px;color:#0A5C26;line-height:2;">
+          <li>Generate your ClawProxy API key from the dashboard</li>
+          <li>Point your agent config to your ClawProxy endpoint</li>
+          <li>Watch your costs drop in real time</li>
+        </ol>
+      </div>
+      ${button('Open Your Dashboard', 'https://clawproxy.ai/dashboard')}
+      <p style="margin:20px 0 0;font-size:13px;color:#8F8F87;line-height:1.6;">
+        If you have any questions, just reply to this email. I read every message personally.<br><br>
+        &mdash; Tuki Joshua, Creator of ClawProxy
+      </p>
     `),
   };
 }

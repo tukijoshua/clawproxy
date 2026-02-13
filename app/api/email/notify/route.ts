@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     )
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.ai'
   let template: { subject: string; html: string }
 
   switch (type) {

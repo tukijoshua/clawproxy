@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   }
 
   // Send invite email
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clawproxy.ai'
   const inviterName = inviter?.name || user.email || 'A teammate'
   const template = teamInviteEmail({
     inviterName,
