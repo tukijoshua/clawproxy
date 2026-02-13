@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,6 +23,7 @@ const CHECKLIST = [
 ];
 
 type StepStatus = 'pending' | 'running' | 'done' | 'failed';
+type PageState = 'configure' | 'testing' | 'success' | 'failed';
 
 interface TestResult {
   step: string;
@@ -33,21 +34,18 @@ interface TestResult {
 
 export default function ConnectionTestPage() {
   const router = useRouter();
+  const [pageState, setPageState] = useState<PageState>('configure');
   const [stepStatuses, setStepStatuses] = useState<StepStatus[]>(
     CHECKLIST.map(() => 'pending')
   );
-  const [allDone, setAllDone] = useState(false);
-  const [hasFailed, setHasFailed] = useState(false);
   const [failedStep, setFailedStep] = useState<{ message: string; detail?: string } | null>(null);
   const [retrying, setRetrying] = useState(false);
 
   const runTest = useCallback(async () => {
+    setPageState('testing');
     setStepStatuses(CHECKLIST.map(() => 'pending'));
-    setAllDone(false);
-    setHasFailed(false);
     setFailedStep(null);
 
-    // Animate steps one by one based on real results
     setStepStatuses((prev) => {
       const next = [...prev];
       next[0] = 'running';
@@ -59,23 +57,17 @@ export default function ConnectionTestPage() {
       const data = await res.json();
       const results: TestResult[] = data.results ?? [];
 
-      // Animate each result with a small delay between steps
       for (let i = 0; i < CHECKLIST.length; i++) {
         const result = results.find((r) => r.step === CHECKLIST[i].key);
 
-        if (!result) {
-          // Step wasn't reached (earlier step failed)
-          break;
-        }
+        if (!result) break;
 
-        // Mark current step as done or failed
         await new Promise((r) => setTimeout(r, 400));
 
         if (result.status === 'pass') {
           setStepStatuses((prev) => {
             const next = [...prev];
             next[i] = 'done';
-            // Start next step if exists
             if (i + 1 < CHECKLIST.length) next[i + 1] = 'running';
             return next;
           });
@@ -85,41 +77,167 @@ export default function ConnectionTestPage() {
             next[i] = 'failed';
             return next;
           });
-          setHasFailed(true);
+          setPageState('failed');
           setFailedStep({ message: result.message, detail: result.detail });
           setRetrying(false);
           return;
         }
       }
 
-      // All passed
       await new Promise((r) => setTimeout(r, 300));
-      setAllDone(true);
+      setPageState('success');
     } catch {
-      // Network error
       setStepStatuses((prev) => {
         const next = [...prev];
         next[0] = 'failed';
         return next;
       });
-      setHasFailed(true);
+      setPageState('failed');
       setFailedStep({
         message: 'Network error',
-        detail: 'Could not reach the server. Make sure the dev server is running (npm run dev).',
+        detail: 'Could not reach the server. Check your internet connection and try again.',
       });
     }
     setRetrying(false);
   }, []);
-
-  useEffect(() => {
-    runTest();
-  }, [runTest]);
 
   const handleRetry = () => {
     setRetrying(true);
     runTest();
   };
 
+  // ── "Configure first" initial state ──
+  if (pageState === 'configure') {
+    return (
+      <OnboardingLayout currentStep={5}>
+        <div className="pt-[40px] sm:pt-[80px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[16px] sm:px-0 w-full max-w-[440px]">
+          {/* Icon */}
+          <motion.div
+            custom={0}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+          >
+            <div
+              className="w-[72px] h-[72px] sm:w-[88px] sm:h-[88px] rounded-full flex items-center justify-center"
+              style={{ backgroundColor: '#FFF8E7', border: '2px solid #E8D5A0' }}
+            >
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#B8860B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-[32px] h-[32px] sm:w-[36px] sm:h-[36px]">
+                <path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </motion.div>
+
+          {/* Header */}
+          <motion.div
+            custom={1}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="mt-[20px] sm:mt-[24px] text-center"
+          >
+            <h1
+              className="text-[24px] sm:text-[28px] leading-[1.15] text-[#111110] tracking-[-0.027em]"
+              style={{ fontFamily: 'PP Mondwest, serif' }}
+            >
+              Have you configured your agent?
+            </h1>
+            <p className="text-[13px] sm:text-[14px] leading-[1.5] text-[#55554F] mt-[10px]">
+              Before we test the connection, make sure you&apos;ve set up your
+              OpenClaw agent to route through ClawProxy.
+            </p>
+          </motion.div>
+
+          {/* Checklist */}
+          <motion.div
+            custom={2}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="mt-[24px] sm:mt-[28px] w-full"
+          >
+            <div
+              className="rounded-[10px] px-[18px] sm:px-[22px] py-[16px] sm:py-[20px]"
+              style={{ backgroundColor: '#FAFAF8', border: '1px solid #E2E1DC' }}
+            >
+              <p className="text-[12px] leading-[1.15] text-[#8F8F87] uppercase tracking-[0.05em] mb-[14px]">
+                Setup checklist
+              </p>
+              {[
+                'Ran the setup command or edited your config manually',
+                'Added your ClawProxy API key to the config',
+                'Restarted your OpenClaw agent (openclaw restart)',
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-[10px] mb-[10px] last:mb-0">
+                  <div className="w-[18px] h-[18px] rounded-[4px] border border-[#D4D4CF] bg-white shrink-0 mt-[1px]" />
+                  <span className="text-[13px] leading-[1.45] text-[#55554F]">{item}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Buttons */}
+          <motion.div
+            custom={3}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="mt-[24px] sm:mt-[28px] w-full flex flex-col gap-[10px]"
+          >
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              onClick={runTest}
+              className="w-full h-[43px] rounded-lg flex items-center justify-center cursor-pointer"
+              style={{
+                backgroundColor: '#17803D',
+                transition: 'background-color 0.25s ease',
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = '#14702f')
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = '#17803D')
+              }
+            >
+              <span
+                className="text-[13px] sm:text-[14px] leading-[1.15] text-white"
+                style={{ letterSpacing: '-0.007em' }}
+              >
+                Yes, I&apos;ve configured it — test now
+              </span>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              onClick={() => router.push('/onboarding/setup')}
+              className="w-full h-[43px] rounded-lg flex items-center justify-center cursor-pointer"
+              style={{
+                backgroundColor: '#F0EFED',
+                transition: 'background-color 0.15s ease',
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = '#E8E7E4')
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = '#F0EFED')
+              }
+            >
+              <span
+                className="text-[13px] sm:text-[14px] leading-[1.15] text-[#55554F]"
+                style={{ letterSpacing: '-0.007em' }}
+              >
+                Not yet — take me back to setup
+              </span>
+            </motion.button>
+          </motion.div>
+        </div>
+      </OnboardingLayout>
+    );
+  }
+
+  // ── Testing / Success / Failed states ──
   return (
     <OnboardingLayout currentStep={5}>
       <div className="pt-[50px] sm:pt-[129px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[16px] sm:px-0 w-full max-w-[480px]">
@@ -132,7 +250,7 @@ export default function ConnectionTestPage() {
           className="mt-[28px] sm:mt-[36px] text-center"
         >
           <AnimatePresence mode="wait">
-            {allDone ? (
+            {pageState === 'success' ? (
               <motion.div
                 key="success"
                 initial={{ opacity: 0, y: 8 }}
@@ -154,7 +272,7 @@ export default function ConnectionTestPage() {
                   ClawProxy is receiving and routing requests. Everything works.
                 </p>
               </motion.div>
-            ) : hasFailed ? (
+            ) : pageState === 'failed' ? (
               <motion.div
                 key="failed"
                 initial={{ opacity: 0, y: 8 }}
@@ -164,8 +282,8 @@ export default function ConnectionTestPage() {
                 <h1 className="text-[22px] sm:text-[26px] leading-[1.15] text-[#C23A2D]">
                   Connection failed
                 </h1>
-                <p className="text-[13px] sm:text-[14px] leading-[1.15] text-[#55554F] mt-[6px]">
-                  One of the checks didn&apos;t pass. See details below.
+                <p className="text-[13px] sm:text-[14px] leading-[1.5] text-[#55554F] mt-[6px] max-w-[340px] mx-auto">
+                  One of the checks didn&apos;t pass. Make sure you&apos;ve configured your agent and try again.
                 </p>
               </motion.div>
             ) : (
@@ -291,7 +409,7 @@ export default function ConnectionTestPage() {
 
         {/* Error detail box */}
         <AnimatePresence>
-          {hasFailed && failedStep && (
+          {pageState === 'failed' && failedStep && (
             <motion.div
               initial={{ opacity: 0, y: 8, height: 0 }}
               animate={{ opacity: 1, y: 0, height: 'auto' }}
@@ -318,7 +436,7 @@ export default function ConnectionTestPage() {
 
         {/* Action buttons */}
         <AnimatePresence>
-          {allDone && (
+          {pageState === 'success' && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -351,63 +469,65 @@ export default function ConnectionTestPage() {
             </motion.div>
           )}
 
-          {hasFailed && (
+          {pageState === 'failed' && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 }}
-              className="mt-[16px] w-full max-w-[360px] flex gap-[8px]"
+              className="mt-[16px] w-full max-w-[360px] flex flex-col gap-[8px]"
             >
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => router.back()}
-                className="w-[96px] h-[43px] bg-[#F0EFED] rounded-lg flex items-center justify-center gap-[7px] cursor-pointer shrink-0"
-                style={{ transition: 'background-color 0.15s ease' }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = '#E8E7E4')
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = '#F0EFED')
-                }
-              >
-                <Image
-                  src="/images/onboarding/icon-back-arrow.svg"
-                  alt=""
-                  width={8}
-                  height={8}
-                />
-                <span
-                  className="text-[15px] leading-[1.15] text-black"
-                  style={{ letterSpacing: '-0.013em' }}
+              <div className="flex gap-[8px]">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push('/onboarding/setup')}
+                  className="w-[130px] h-[43px] bg-[#F0EFED] rounded-lg flex items-center justify-center gap-[7px] cursor-pointer shrink-0"
+                  style={{ transition: 'background-color 0.15s ease' }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = '#E8E7E4')
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = '#F0EFED')
+                  }
                 >
-                  Back
-                </span>
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={handleRetry}
-                disabled={retrying}
-                className="flex-1 h-[43px] rounded-lg flex items-center justify-center cursor-pointer disabled:opacity-60"
-                style={{
-                  backgroundColor: '#111110',
-                  transition: 'background-color 0.25s ease',
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = '#2a2a28')
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = '#111110')
-                }
-              >
-                <span
-                  className="text-[13px] sm:text-[14px] leading-[1.15] text-white"
-                  style={{ letterSpacing: '-0.007em' }}
+                  <Image
+                    src="/images/onboarding/icon-back-arrow.svg"
+                    alt=""
+                    width={8}
+                    height={8}
+                  />
+                  <span
+                    className="text-[14px] leading-[1.15] text-black"
+                    style={{ letterSpacing: '-0.013em' }}
+                  >
+                    Back to setup
+                  </span>
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={handleRetry}
+                  disabled={retrying}
+                  className="flex-1 h-[43px] rounded-lg flex items-center justify-center cursor-pointer disabled:opacity-60"
+                  style={{
+                    backgroundColor: '#111110',
+                    transition: 'background-color 0.25s ease',
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = '#2a2a28')
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = '#111110')
+                  }
                 >
-                  {retrying ? 'Retrying...' : 'Retry connection test'}
-                </span>
-              </motion.button>
+                  <span
+                    className="text-[13px] sm:text-[14px] leading-[1.15] text-white"
+                    style={{ letterSpacing: '-0.007em' }}
+                  >
+                    {retrying ? 'Retrying...' : 'Retry connection test'}
+                  </span>
+                </motion.button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
