@@ -435,7 +435,7 @@ export default function Home() {
           className="flex items-center justify-between w-full max-w-[667px] h-[46px] px-[12px] rounded-[4px]"
           style={{ backgroundColor: '#1A1A1A' }}
         >
-          <Link href="/" className="flex items-center">
+          <Link href={isLoggedIn ? '/dashboard' : '/'} className="flex items-center">
             <span
               className="text-[24px] text-white"
               style={{ fontFamily: 'PP Mondwest, serif', letterSpacing: '-0.027em' }}

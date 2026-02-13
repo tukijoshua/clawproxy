@@ -112,7 +112,7 @@ export default function DocsPage() {
       {/* Navbar */}
       <div className="sticky top-0 z-50 flex justify-center pt-[16px] px-[16px] pb-[8px]" style={{ backgroundColor: '#F0EFED' }}>
         <nav className="flex items-center justify-between w-full max-w-[1200px] h-[46px] px-[16px] rounded-[4px]" style={{ backgroundColor: '#1A1A1A' }}>
-          <Link href="/" className="flex items-center">
+          <Link href={isLoggedIn ? '/dashboard' : '/'} className="flex items-center">
             <span className="text-[24px] text-white" style={{ fontFamily: 'PP Mondwest, serif', letterSpacing: '-0.027em' }}>
               ClawProxy
             </span>
