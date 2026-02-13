@@ -122,7 +122,7 @@ export default function ConnectionTestPage() {
 
   return (
     <OnboardingLayout currentStep={5}>
-      <div className="pt-[80px] sm:pt-[129px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[16px] sm:px-0 w-full max-w-[480px]">
+      <div className="pt-[50px] sm:pt-[129px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[16px] sm:px-0 w-full max-w-[480px]">
         {/* Status heading */}
         <motion.div
           custom={1}

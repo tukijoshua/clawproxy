@@ -496,7 +496,7 @@ export default function SetupPage() {
 
   return (
     <OnboardingLayout currentStep={4}>
-      <div className="pt-[40px] sm:pt-[69px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[16px] sm:px-0">
+      <div className="pt-[40px] sm:pt-[69px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[16px] sm:px-0 w-full">
         {/* Header */}
         <motion.div
           custom={0}

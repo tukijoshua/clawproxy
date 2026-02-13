@@ -22,21 +22,24 @@ export default function DonePage() {
   const handleGoToDashboard = async () => {
     setSaving(true);
     try {
-      const role = localStorage.getItem('onboarding_role');
-      const agentCount = localStorage.getItem('onboarding_agentCount');
+      let role: string | null = null;
+      let agentCount = 0;
+      try {
+        const stored = JSON.parse(localStorage.getItem('onboarding') || '{}');
+        role = stored.role || null;
+        agentCount = stored.agentCount ? parseInt(stored.agentCount, 10) : 0;
+      } catch {
+        /* ignore parse errors */
+      }
 
       await fetch('/api/onboarding/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          role: role || null,
-          agentCount: agentCount ? parseInt(agentCount, 10) : 0,
-        }),
+        body: JSON.stringify({ role, agentCount }),
       });
 
       // Clear onboarding data from localStorage
-      localStorage.removeItem('onboarding_role');
-      localStorage.removeItem('onboarding_agentCount');
+      localStorage.removeItem('onboarding');
     } catch {
       // Continue to dashboard even if persistence fails
     }
@@ -45,7 +48,7 @@ export default function DonePage() {
 
   return (
     <OnboardingLayout currentStep={6}>
-      <div className="pt-[80px] sm:pt-[129px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[20px] sm:px-0">
+      <div className="pt-[60px] sm:pt-[129px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[16px] sm:px-0 w-full">
         {/* Stars icon */}
         <motion.div
           custom={0}

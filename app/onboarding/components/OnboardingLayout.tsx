@@ -147,7 +147,7 @@ export default function OnboardingLayout({
 
       {/* Main content area */}
       <div className="px-[7px] pb-[7px]">
-        <div className="bg-white border border-[#E2E1DC] rounded-[14px] min-h-[calc(100vh-150px)] sm:min-h-[calc(100vh-160px)] flex justify-center">
+        <div className="bg-white border border-[#E2E1DC] rounded-[14px] min-h-[calc(100vh-140px)] sm:min-h-[calc(100vh-160px)] flex justify-center overflow-hidden">
           {children}
         </div>
       </div>

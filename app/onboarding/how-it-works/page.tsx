@@ -19,7 +19,7 @@ export default function HowItWorksPage() {
 
   return (
     <OnboardingLayout currentStep={3}>
-      <div className="pt-[40px] sm:pt-[69px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[20px] sm:px-0">
+      <div className="pt-[40px] sm:pt-[69px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[16px] sm:px-0 w-full">
         {/* Header */}
         <motion.div
           custom={0}
@@ -102,22 +102,22 @@ export default function HowItWorksPage() {
               </p>
               {/* Flow diagram */}
               <div className="mt-[12px] sm:mt-[15px] flex flex-col sm:flex-row items-stretch sm:items-center gap-[6px] sm:gap-[7px]">
-                <div className="h-[32px] bg-white border border-[#E2E1DC] rounded-[10px] flex items-center gap-[2px] pl-[12px] sm:pl-[15px] sm:w-[194px]">
-                  <Image src="/images/onboarding/icon-robot.svg" alt="" width={17} height={17} />
+                <div className="h-[32px] bg-white border border-[#E2E1DC] rounded-[10px] flex items-center gap-[4px] px-[12px] sm:px-[15px] sm:w-[194px]">
+                  <Image src="/images/onboarding/icon-robot.svg" alt="" width={17} height={17} className="shrink-0" />
                   <span className="text-[11px] sm:text-[12px] leading-[1.15] text-[#111110] text-center flex-1">
                     Your agent sends request
                   </span>
                 </div>
-                <Image src="/images/onboarding/icon-arrow-right.svg" alt="" width={10} height={10} className="hidden sm:block" />
-                <div className="h-[32px] bg-white border border-[#E2E1DC] rounded-[10px] flex items-center gap-[2px] pl-[12px] sm:pl-[13.5px] sm:w-[159px]">
-                  <Image src="/images/onboarding/icon-brain.svg" alt="" width={17} height={17} />
+                <Image src="/images/onboarding/icon-arrow-right.svg" alt="" width={10} height={10} className="hidden sm:block shrink-0" />
+                <div className="h-[32px] bg-white border border-[#E2E1DC] rounded-[10px] flex items-center gap-[4px] px-[12px] sm:px-[13.5px] sm:w-[159px]">
+                  <Image src="/images/onboarding/icon-brain.svg" alt="" width={17} height={17} className="shrink-0" />
                   <span className="text-[11px] sm:text-[12px] leading-[1.15] text-[#111110] text-center flex-1">
                     ClawProxy classifies
                   </span>
                 </div>
-                <Image src="/images/onboarding/icon-arrow-right.svg" alt="" width={10} height={10} className="hidden sm:block" />
-                <div className="h-[32px] bg-white border border-[#E2E1DC] rounded-[10px] flex items-center gap-[2px] pl-[12px] sm:pl-[15.5px] sm:w-[177px]">
-                  <Image src="/images/onboarding/icon-zap.svg" alt="" width={17} height={17} />
+                <Image src="/images/onboarding/icon-arrow-right.svg" alt="" width={10} height={10} className="hidden sm:block shrink-0" />
+                <div className="h-[32px] bg-white border border-[#E2E1DC] rounded-[10px] flex items-center gap-[4px] px-[12px] sm:px-[15.5px] sm:w-[177px]">
+                  <Image src="/images/onboarding/icon-zap.svg" alt="" width={17} height={17} className="shrink-0" />
                   <span className="text-[11px] sm:text-[12px] leading-[1.15] text-[#111110] text-center flex-1">
                     Routes to best model
                   </span>
@@ -146,7 +146,7 @@ export default function HowItWorksPage() {
                 same answer, 200× cheaper. Complex tasks still go to Opus.
               </p>
               {/* Pricing cards */}
-              <div className="mt-[12px] sm:mt-[15px] flex flex-col sm:flex-row gap-[8px]">
+              <div className="mt-[12px] sm:mt-[15px] grid grid-cols-3 gap-[8px]">
                 {[
                   { icon: '/images/onboarding/icon-bubble-chat.svg', label: 'Simple', desc: 'Heartbeats, lookups', price: '$0.50/M' },
                   { icon: '/images/onboarding/icon-mail.svg', label: 'Medium', desc: 'Emails, summaries', price: '$0.80/M' },
@@ -154,21 +154,21 @@ export default function HowItWorksPage() {
                 ].map((card) => (
                   <div
                     key={card.label}
-                    className="flex-1 bg-white border border-[#E2E1DC] rounded-[10px] flex sm:flex-col items-center sm:justify-center gap-[10px] sm:gap-[6px] px-[16px] sm:px-[10px] py-[14px] sm:py-[18px]"
+                    className="bg-white border border-[#E2E1DC] rounded-[10px] flex flex-col items-center justify-center gap-[6px] px-[8px] sm:px-[10px] py-[14px] sm:py-[18px]"
                   >
                     <Image src={card.icon} alt="" width={21} height={21} className="shrink-0" />
                     <div
                       className="text-center"
                       style={{ fontFamily: 'DM Sans, sans-serif' }}
                     >
-                      <span className="text-[12px] leading-[1.302] font-semibold text-[#111110]">
+                      <span className="text-[11px] sm:text-[12px] leading-[1.302] font-semibold text-[#111110] block">
                         {card.label}
                       </span>
-                      <span className="text-[12px] leading-[1.302] font-semibold text-[#111110] sm:block ml-[4px] sm:ml-0">
+                      <span className="text-[10px] sm:text-[12px] leading-[1.302] text-[#8F8F87] block">
                         {card.desc}
                       </span>
                     </div>
-                    <span className="text-[12px] leading-[1.15] text-[#17803D] text-center shrink-0">
+                    <span className="text-[11px] sm:text-[12px] leading-[1.15] text-[#17803D] text-center">
                       {card.price}
                     </span>
                   </div>
@@ -178,7 +178,7 @@ export default function HowItWorksPage() {
           </div>
 
           {/* Green result card */}
-          <div className="mt-[20px] sm:mt-[28px] w-full rounded-[10px] flex items-start gap-[12px] sm:gap-[16px] p-[16px] sm:p-[20px]" style={{ backgroundColor: '#E2F3EA', border: '1px solid #B8DBCA' }}>
+          <div className="mt-[20px] sm:mt-[28px] w-full max-w-[680px] rounded-[10px] flex items-start gap-[12px] sm:gap-[16px] p-[14px] sm:p-[20px]" style={{ backgroundColor: '#E2F3EA', border: '1px solid #B8DBCA' }}>
             <div className="shrink-0 mt-[2px]">
               <Image src="/images/onboarding/icon-idea.svg" alt="" width={25} height={25} />
             </div>

@@ -47,7 +47,7 @@ export default function ApiKeyPage() {
 
   return (
     <OnboardingLayout currentStep={5}>
-      <div className="pt-[80px] sm:pt-[129px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[20px] sm:px-0">
+      <div className="pt-[50px] sm:pt-[129px] pb-[40px] sm:pb-[60px] flex flex-col items-center px-[16px] sm:px-0 w-full">
         {/* Key icon */}
         <motion.div
           custom={0}
