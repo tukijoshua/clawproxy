@@ -1,12 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { PLANS } from '@/lib/constants';
+import type { Plan } from '@/lib/supabase/types';
 
 export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupPageInner />
+    </Suspense>
+  );
+}
+
+function SignupPageInner() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -16,7 +26,11 @@ export default function SignupPage() {
   const [error, setError] = useState('');
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+
+  const intendedPlan = (searchParams.get('plan') as Plan) || null;
+  const isPaidPlan = intendedPlan && intendedPlan !== 'starter' && PLANS[intendedPlan];
 
   const passwordStrength = (() => {
     if (!password) return 0;
@@ -47,6 +61,7 @@ export default function SignupPage() {
           name: `${firstName} ${lastName}`.trim(),
           first_name: firstName,
           last_name: lastName,
+          ...(intendedPlan ? { intended_plan: intendedPlan } : {}),
         },
       },
     });
@@ -55,15 +70,23 @@ export default function SignupPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push('/onboarding');
+      // Fire-and-forget welcome email for email/password signups
+      fetch('/api/auth/welcome', { method: 'POST' }).catch(() => {});
+
+      if (isPaidPlan) {
+        window.location.href = PLANS[intendedPlan].checkoutUrl!;
+      } else {
+        router.push('/onboarding');
+      }
     }
   };
 
   const handleOAuth = async (provider: 'google' | 'github') => {
+    const next = isPaidPlan ? PLANS[intendedPlan].checkoutUrl! : '/onboarding';
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
     if (error) setError(error.message);
