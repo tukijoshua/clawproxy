@@ -23,7 +23,7 @@ echo ""
 echo -e "\${BOLD}Step 1:\${NC} Enter your ClawProxy API key"
 echo -e "  (starts with \${GREEN}cp_sk_\${NC}, from your onboarding page)"
 echo ""
-read -rp "  API Key: " API_KEY
+read -rp "  API Key: " API_KEY < /dev/tty
 
 if [[ -z "$API_KEY" ]]; then
   echo -e "\${RED}Error:\${NC} No API key provided. Exiting."
@@ -32,7 +32,7 @@ fi
 
 if [[ ! "$API_KEY" =~ ^cp_sk_ ]]; then
   echo -e "\${YELLOW}Warning:\${NC} Key doesn't start with cp_sk_ — are you sure this is correct?"
-  read -rp "  Continue anyway? (y/N): " CONFIRM
+  read -rp "  Continue anyway? (y/N): " CONFIRM < /dev/tty
   if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
     echo "Exiting."
     exit 1
@@ -66,7 +66,7 @@ if [[ -z "$CONFIG_FILE" ]]; then
   echo "    ~/.openclaw/openclaw.json"
   echo "    ~/.config/openclaw/openclaw.json"
   echo ""
-  read -rp "  Enter full path to your config file: " CONFIG_FILE
+  read -rp "  Enter full path to your config file: " CONFIG_FILE < /dev/tty
   if [[ ! -f "$CONFIG_FILE" ]]; then
     echo -e "\${RED}Error:\${NC} File not found: $CONFIG_FILE"
     exit 1
