@@ -3,10 +3,17 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 export function Hero() {
-  // Authentication check removed for now - will add back later
-  const user = null;
+  const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }: any) => {
+      setUser(user);
+    });
+  }, [supabase]);
 
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center bg-brand-black overflow-hidden pt-20">

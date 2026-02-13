@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Kreos.agency - Ship Products 10x Faster with AI",
-  description: "We design, build, and launch products in 7-14 days using Claude Code. AI-powered development that's 10x faster than traditional agencies.",
-  keywords: ["product development", "AI development", "Claude Code", "rapid prototyping", "MVP development"],
+  title: "ClawProxy - Stop Burning Money on AI Agents",
+  description: "ClawProxy sits between OpenClaw and the API. It routes every request to the cheapest model that can handle it. Same results. 70% less spend.",
+  keywords: ["AI proxy", "OpenClaw", "cost optimization", "smart routing", "AI agents", "API proxy"],
 };
 
 export default function RootLayout({

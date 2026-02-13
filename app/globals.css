@@ -1,27 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #F0EFED;
+  --foreground: #111110;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', 'DM Sans', sans-serif;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* ── Text glitch effect (pseudo-element based) ── */
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.glitch::before {
+  animation: glitch-top 4s infinite linear alternate-reverse;
+  clip-path: inset(0 0 65% 0);
+}
+
+.glitch::after {
+  animation: glitch-bottom 4s infinite linear alternate-reverse;
+  clip-path: inset(60% 0 0 0);
+}
+
+/* Staggered timing variants */
+.glitch-d2::before { animation-delay: 1.5s; }
+.glitch-d2::after  { animation-delay: 1.5s; }
+.glitch-d3::before { animation-delay: 3s; }
+.glitch-d3::after  { animation-delay: 3s; }
+.glitch-d4::before { animation-delay: 4.5s; }
+.glitch-d4::after  { animation-delay: 4.5s; }
+.glitch-d5::before { animation-delay: 2.2s; }
+.glitch-d5::after  { animation-delay: 2.2s; }
+
+@keyframes glitch-top {
+  0%, 85% { transform: translate(0); }
+  86% { transform: translate(-3px, 0); }
+  87% { transform: translate(0); }
+  88% { transform: translate(2px, 0); }
+  89% { transform: translate(0); }
+  90% { transform: translate(-1px, 0); }
+  91%, 100% { transform: translate(0); }
+}
+
+@keyframes glitch-bottom {
+  0%, 83% { transform: translate(0); }
+  84% { transform: translate(2px, 0); }
+  85% { transform: translate(0); }
+  86% { transform: translate(-3px, 0); }
+  87% { transform: translate(0); }
+  88% { transform: translate(1px, 0); }
+  89%, 100% { transform: translate(0); }
+}
+
+/* Element glitch (for images, icons, non-text) */
+.glitch-el {
+  animation: glitch-element 6s infinite;
+}
+.glitch-el-d2 { animation: glitch-element 6s 2s infinite; }
+.glitch-el-d3 { animation: glitch-element 6s 3.5s infinite; }
+.glitch-el-d4 { animation: glitch-element 6s 1s infinite; }
+
+@keyframes glitch-element {
+  0%, 88% { transform: translate(0); }
+  89% { transform: translate(-2px, 0); }
+  90% { transform: translate(2px, 0); }
+  91% { transform: translate(-1px, 0); }
+  92%, 100% { transform: translate(0); }
+}
+
+@keyframes avatarFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

@@ -103,10 +103,10 @@ export function Footer() {
             © 2026 Kreos. Built with Claude Code
           </p>
           <div className="flex gap-6 text-sm">
-            <Link href="/privacy" className="text-brand-gray-500 hover:text-brand-white transition">
+            <Link href="#" className="text-brand-gray-500 hover:text-brand-white transition">
               Privacy
             </Link>
-            <Link href="/terms" className="text-brand-gray-500 hover:text-brand-white transition">
+            <Link href="#" className="text-brand-gray-500 hover:text-brand-white transition">
               Terms
             </Link>
           </div>
