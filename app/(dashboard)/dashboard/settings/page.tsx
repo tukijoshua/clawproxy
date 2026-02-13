@@ -1,17 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { UpgradeGate } from '@/components/upgrade-gate';
 import { usePlan } from '@/lib/user-context';
 
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
-const fadeUp = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } } };
+const fadeUp = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const } } };
 
 export default function SettingsPage() {
   const { canUseLoopDetection, canUseCompression, canUseSpendingLimits } = usePlan();
-  const [dailyLimit, setDailyLimit] = useState('15.00');
-  const [monthlyLimit, setMonthlyLimit] = useState('300.00');
+  const [dailyLimit, setDailyLimit] = useState('');
+  const [monthlyLimit, setMonthlyLimit] = useState('');
   const [alert75, setAlert75] = useState(true);
   const [alert90, setAlert90] = useState(true);
   const [loopDetection, setLoopDetection] = useState(true);
@@ -20,8 +20,51 @@ export default function SettingsPage() {
   const [mediumModel, setMediumModel] = useState('Claude Haiku 4.5 — $0.80/M');
   const [complexModel, setComplexModel] = useState('Claude Opus 4.6 — $15/M');
   const [copied, setCopied] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
+  const [dirty, setDirty] = useState(false);
 
-  const endpoint = 'https://api.clawproxy.com/v1';
+  const [endpoint, setEndpoint] = useState('');
+  useEffect(() => { setEndpoint(`${window.location.origin}/api/proxy/v1`); }, []);
+
+  // Fetch current budget settings
+  const fetchSettings = useCallback(async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (!res.ok) return;
+      const data = await res.json();
+      setDailyLimit(data.daily_budget != null ? String(data.daily_budget) : '');
+      setMonthlyLimit(data.monthly_budget != null ? String(data.monthly_budget) : '');
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => { fetchSettings(); }, [fetchSettings]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveStatus('idle');
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          daily_budget: dailyLimit === '' ? null : dailyLimit,
+          monthly_budget: monthlyLimit === '' ? null : monthlyLimit,
+        }),
+      });
+      if (res.ok) {
+        setSaveStatus('saved');
+        setDirty(false);
+        setTimeout(() => setSaveStatus('idle'), 2000);
+      } else {
+        setSaveStatus('error');
+      }
+    } catch {
+      setSaveStatus('error');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(endpoint);
@@ -82,7 +125,8 @@ export default function SettingsPage() {
             <input
               type="text"
               value={dailyLimit}
-              onChange={(e) => setDailyLimit(e.target.value)}
+              onChange={(e) => { setDailyLimit(e.target.value); setDirty(true); }}
+              placeholder="No limit"
               className="w-full h-[37px] mt-[4px] px-[13px] rounded-[6px] border border-[#E4E3DE] text-[13px] text-black outline-none focus:border-[#17803D] transition"
               style={{ fontFamily: 'Aeonik Pro, sans-serif' }}
             />
@@ -94,7 +138,8 @@ export default function SettingsPage() {
             <input
               type="text"
               value={monthlyLimit}
-              onChange={(e) => setMonthlyLimit(e.target.value)}
+              onChange={(e) => { setMonthlyLimit(e.target.value); setDirty(true); }}
+              placeholder="No limit"
               className="w-full h-[37px] mt-[4px] px-[13px] rounded-[6px] border border-[#E4E3DE] text-[13px] text-black outline-none focus:border-[#17803D] transition"
               style={{ fontFamily: 'Aeonik Pro, sans-serif' }}
             />
@@ -128,6 +173,21 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
+
+            {/* Save button */}
+            <button
+              onClick={handleSave}
+              disabled={saving || !dirty}
+              className="mt-[16px] w-full h-[37px] rounded-[6px] text-[13px] leading-[1.15] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-default"
+              style={{
+                fontFamily: 'Aeonik Pro, sans-serif',
+                fontWeight: 500,
+                backgroundColor: saveStatus === 'saved' ? '#DCEEE3' : saveStatus === 'error' ? '#FDECEA' : '#111110',
+                color: saveStatus === 'saved' ? '#0D5428' : saveStatus === 'error' ? '#C23A2D' : '#FAFAF8',
+              }}
+            >
+              {saving ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : saveStatus === 'error' ? 'Error — try again' : 'Save limits'}
+            </button>
           </div>
         </UpgradeGate>
 

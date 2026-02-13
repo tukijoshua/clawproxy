@@ -12,6 +12,8 @@ export interface User {
   whop_membership_id: string | null;
   cancel_reason: string | null;
   payment_failed: boolean;
+  daily_budget: number | null;
+  monthly_budget: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -42,6 +44,29 @@ export interface TeamInvitation {
   expires_at: string;
   created_at: string;
   updated_at: string;
+}
+
+export type RequestLogStatus = 'success' | 'error' | 'loop_killed' | 'budget_exceeded';
+
+export interface RequestLog {
+  id: string;
+  user_id: string;
+  api_key_id: string | null;
+  model: string;
+  requested_model: string | null;
+  provider: string;
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+  cost: number;
+  estimated_direct_cost: number;
+  latency_ms: number;
+  status: RequestLogStatus;
+  cache_hit: boolean;
+  agent_label: string | null;
+  error_message: string | null;
+  request_hash: string | null;
+  created_at: string;
 }
 
 export interface ApiKey {

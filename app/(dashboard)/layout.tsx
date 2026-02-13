@@ -64,6 +64,21 @@ const IconBilling = () => (
   </svg>
 );
 
+const IconRules = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 6h16M4 12h16M4 18h16" />
+    <circle cx="8" cy="6" r="2" fill="currentColor" stroke="none" />
+    <circle cx="16" cy="12" r="2" fill="currentColor" stroke="none" />
+    <circle cx="12" cy="18" r="2" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const IconKeys = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+  </svg>
+);
+
 const IconAgents = () => (
   <svg width="18" height="18" viewBox="0 0 19 19" fill="none" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9.5 3.16667V1.58333" />
@@ -87,6 +102,8 @@ const iconMap: Record<string, () => JSX.Element> = {
   agents: IconAgents,
   'live-feed': IconLiveFeed,
   analytics: IconAnalytics,
+  rules: IconRules,
+  keys: IconKeys,
   members: IconMembers,
   settings: IconSettings,
   pricing: IconPricing,
@@ -95,16 +112,16 @@ const iconMap: Record<string, () => JSX.Element> = {
 
 const sidebarMain = [
   { iconKey: 'overview', label: 'Overview', href: '/dashboard' },
-  { iconKey: 'agents', label: 'Agents', href: '/dashboard/agents' },
-  { iconKey: 'live-feed', label: 'Live Feed', href: '/dashboard/live-feed' },
   { iconKey: 'analytics', label: 'Analytics', href: '/dashboard/analytics' },
-  { iconKey: 'members', label: 'Members', href: '/dashboard/members' },
+  { iconKey: 'agents', label: 'Agents', href: '/dashboard/agents' },
 ];
 
 const sidebarSettings = [
   { iconKey: 'settings', label: 'Settings', href: '/dashboard/settings' },
-  { iconKey: 'pricing', label: 'Pricing', href: '/dashboard/pricing' },
-  { iconKey: 'billing', label: 'Billing', href: '/dashboard/billing' },
+  { iconKey: 'billing', label: 'Billing', href: '/dashboard/settings/billing' },
+  { iconKey: 'members', label: 'Team', href: '/dashboard/settings/team' },
+  { iconKey: 'rules', label: 'Rules', href: '/dashboard/settings/rules' },
+  { iconKey: 'keys', label: 'API Keys', href: '/dashboard/settings/keys' },
 ];
 
 export default function DashboardLayout({
@@ -131,6 +148,7 @@ export default function DashboardLayout({
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard';
+    if (href === '/dashboard/settings') return pathname === '/dashboard/settings';
     return pathname.startsWith(href);
   };
 

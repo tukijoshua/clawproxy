@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
+import { createClient } from '@/lib/supabase/client';
 
 const AVATAR_POOL = Array.from({ length: 12 }, (_, i) => `/landing/avatar-${i + 1}.png`);
 
@@ -270,6 +271,7 @@ function PricingCard({
   buttonBorder,
   popular = false,
   borderColor = '#E4E3DE',
+  href = '/auth/signup',
 }: {
   name: string;
   price: string;
@@ -282,6 +284,7 @@ function PricingCard({
   buttonBorder?: string;
   popular?: boolean;
   borderColor?: string;
+  href?: string;
 }) {
   return (
     <div
@@ -355,7 +358,7 @@ function PricingCard({
 
         {/* Button */}
         <Link
-          href="/auth/signup"
+          href={href}
           className="flex items-center justify-center h-[37px] rounded-[2px] text-[14px] w-full mt-[16px] cursor-pointer hover:opacity-90 transition"
           style={{
             backgroundColor: buttonBg,
@@ -407,6 +410,15 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
    MAIN PAGE
    ════════════════════════════════════════════════════════════════════════════ */
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: unknown } }) => {
+      setIsLoggedIn(!!session);
+    });
+  }, []);
+
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#F0EFED' }}>
       {/* ── Rainbow bar ──────────────────────────────────────────────────── */}
@@ -432,11 +444,11 @@ export default function Home() {
             </span>
           </Link>
           <Link
-            href="/auth/signup"
+            href={isLoggedIn ? '/dashboard' : '/auth/signup'}
             className="flex items-center justify-center h-[27px] px-[10px] rounded-[4px] bg-white text-[12px] text-[#1A1A1A] hover:opacity-90 transition glitch-el-d4"
             style={{ fontFamily: 'Space Grotesk, sans-serif' }}
           >
-            Get Started
+            {isLoggedIn ? 'Dashboard →' : 'Get Started'}
           </Link>
         </nav>
       </div>
@@ -473,7 +485,10 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
           >
-            <CtaButton />
+            <CtaButton
+              label={isLoggedIn ? 'Dashboard →' : 'Start saving →'}
+              href={isLoggedIn ? '/dashboard' : '/auth/signup'}
+            />
             <Link
               href="#setup"
               className="inline-flex items-center justify-center h-[40px] sm:h-[44px] px-[24px] sm:px-[34px] rounded-[3px] text-[14px] sm:text-[16px] text-black cursor-pointer hover:opacity-80 transition"
@@ -834,6 +849,7 @@ export default function Home() {
               buttonBg="#F0EFEB"
               buttonTextColor="#111110"
               buttonBorder="#E4E3DE"
+              href={isLoggedIn ? '/dashboard/upgrade?plan=starter' : '/auth/signup'}
             />
             </FadeIn>
 
@@ -855,6 +871,7 @@ export default function Home() {
               ]}
               buttonLabel="Start Pro plan →"
               buttonBg="#157A3E"
+              href={isLoggedIn ? '/dashboard/upgrade?plan=pro' : '/auth/signup?plan=pro'}
             />
             </FadeIn>
 
@@ -873,6 +890,7 @@ export default function Home() {
               ]}
               buttonLabel="Start Team plan →"
               buttonBg="#7C3AED"
+              href={isLoggedIn ? '/dashboard/upgrade?plan=team' : '/auth/signup?plan=team'}
             />
             </FadeIn>
           </div>

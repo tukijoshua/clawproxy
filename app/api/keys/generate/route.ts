@@ -4,7 +4,7 @@ import { PLAN_LIMITS } from '@/lib/constants'
 import type { Plan } from '@/lib/supabase/types'
 import crypto from 'crypto'
 
-export async function POST() {
+export async function POST(request: Request) {
   const supabase = await createClient()
 
   const {
@@ -18,7 +18,7 @@ export async function POST() {
 
   // Check agent limit for plan
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('plan, agent_count')
     .eq('id', user.id)
     .single()
@@ -40,6 +40,17 @@ export async function POST() {
     )
   }
 
+  // Parse optional label and scope from request body
+  let label = 'Default Agent'
+  let scope = 'full'
+  try {
+    const body = await request.json()
+    if (body.label) label = body.label
+    if (body.scope && ['full', 'proxy_only', 'read_only'].includes(body.scope)) scope = body.scope
+  } catch {
+    // Body is optional — defaults are fine
+  }
+
   // Generate raw key: cp_sk_ + 48 hex chars
   const rawKey = `cp_sk_${crypto.randomBytes(24).toString('hex')}`
   const keyPrefix = rawKey.slice(0, 12)
@@ -49,8 +60,8 @@ export async function POST() {
     user_id: user.id,
     key_hash: keyHash,
     key_prefix: keyPrefix,
-    label: 'Default Agent',
-    scope: 'full',
+    label,
+    scope,
   })
 
   if (error) {

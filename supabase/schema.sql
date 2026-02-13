@@ -188,3 +188,36 @@ create policy "Users can read own invitations"
 create policy "Users can insert own invitations"
   on public.team_invitations for insert
   with check (auth.uid() = inviter_id);
+
+-- ─── Budget columns on users ──────────────────────────────────────
+ALTER TABLE public.users ADD COLUMN daily_budget decimal DEFAULT NULL;
+ALTER TABLE public.users ADD COLUMN monthly_budget decimal DEFAULT NULL;
+
+-- ─── Request logs table ───────────────────────────────────────────
+CREATE TABLE public.request_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES public.users ON DELETE CASCADE,
+  api_key_id uuid REFERENCES public.api_keys ON DELETE SET NULL,
+  model text NOT NULL,
+  requested_model text,
+  provider text NOT NULL DEFAULT 'openrouter',
+  prompt_tokens int NOT NULL DEFAULT 0,
+  completion_tokens int NOT NULL DEFAULT 0,
+  total_tokens int NOT NULL DEFAULT 0,
+  cost decimal NOT NULL DEFAULT 0,
+  estimated_direct_cost decimal NOT NULL DEFAULT 0,
+  latency_ms int NOT NULL DEFAULT 0,
+  status text NOT NULL DEFAULT 'success',
+  cache_hit boolean NOT NULL DEFAULT false,
+  agent_label text,
+  error_message text,
+  request_hash text,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_request_logs_user_id ON public.request_logs (user_id);
+CREATE INDEX idx_request_logs_created_at ON public.request_logs (created_at);
+CREATE INDEX idx_request_logs_api_key_id ON public.request_logs (api_key_id);
+CREATE INDEX idx_request_logs_user_created ON public.request_logs (user_id, created_at DESC);
+
+ALTER TABLE public.request_logs ENABLE ROW LEVEL SECURITY;

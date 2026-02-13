@@ -11,7 +11,7 @@ export async function requirePlan(
   minPlan: Plan,
 ) {
   const { data: profile, error } = await supabase
-    .from('profiles')
+    .from('users')
     .select('plan, agent_count')
     .eq('id', userId)
     .single();
