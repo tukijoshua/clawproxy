@@ -58,7 +58,7 @@ function UpgradeGate({ feature, requiredPlan }: { feature: string; requiredPlan:
 }
 
 export default function RulesPage() {
-  const { isPaid, maxRules, plan } = usePlan();
+  const { isPaid, maxRules } = usePlan();
   const [rules, setRules] = useState<RoutingRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

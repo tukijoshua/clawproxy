@@ -54,7 +54,7 @@ function fmt(n: number) {
 }
 
 export default function DashboardPage() {
-  const { isPaid, canExportCsv, canUseLoopDetection, plan } = usePlan();
+  const { isPaid, canExportCsv, canUseLoopDetection } = usePlan();
   const [timeRange, setTimeRange] = useState<TimeRange>('today');
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
   const [hoveredSkill, setHoveredSkill] = useState<number | null>(null);

@@ -106,6 +106,15 @@ function RoleDropdown({ role, onChange }: { role: Role; onChange: (r: Role) => v
 /* ── Page ─────────────────────────────────────────────────────────── */
 export default function MembersPage() {
   const { canInviteMembers } = usePlan();
+  const [members, setMembers] = useState<Member[]>(initialMembers);
+  const [modalStep, setModalStep] = useState<0 | 1 | 2>(0);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'admin' | 'member' | 'viewer'>('admin');
+  const [personalMessage, setPersonalMessage] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteError, setInviteError] = useState('');
 
   if (!canInviteMembers) {
     return (
@@ -116,15 +125,6 @@ export default function MembersPage() {
       </div>
     );
   }
-  const [members, setMembers] = useState<Member[]>(initialMembers);
-  const [modalStep, setModalStep] = useState<0 | 1 | 2>(0);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'admin' | 'member' | 'viewer'>('admin');
-  const [personalMessage, setPersonalMessage] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
-  const [inviteLoading, setInviteLoading] = useState(false);
-  const [inviteError, setInviteError] = useState('');
 
   const filteredMembers = members.filter(
     (m) =>
