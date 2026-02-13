@@ -72,6 +72,8 @@ function SignupPageInner() {
         setError('Too many signup attempts. Please wait a few minutes and try again.');
       } else if (error.message.toLowerCase().includes('already registered')) {
         setError('An account with this email already exists. Try signing in instead.');
+      } else if (error.message.toLowerCase().includes('sending confirmation') || error.message.toLowerCase().includes('sending email')) {
+        setError('Could not send confirmation email. Please try again or use Google/GitHub sign up.');
       } else {
         setError(error.message);
       }
