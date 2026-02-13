@@ -137,8 +137,16 @@ export default function DashboardLayout({
   useEffect(() => {
     fetch('/api/auth/user')
       .then((res) => (res.ok ? res.json() : null))
-      .then((data) => { if (data && !data.error) setUser(data); });
-  }, []);
+      .then((data) => {
+        if (data && !data.error) {
+          if (!data.onboarding_completed) {
+            router.push('/onboarding');
+            return;
+          }
+          setUser(data);
+        }
+      });
+  }, [router]);
 
   const handleSignOut = async () => {
     const supabase = createClient();

@@ -486,7 +486,7 @@ export default function Home() {
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
           >
             <CtaButton
-              label={isLoggedIn ? 'Dashboard →' : 'Start saving →'}
+              label={isLoggedIn ? 'Dashboard' : 'Start saving'}
               href={isLoggedIn ? '/dashboard' : '/auth/signup'}
             />
             <Link
