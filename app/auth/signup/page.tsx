@@ -68,7 +68,13 @@ function SignupPageInner() {
     });
 
     if (error) {
-      setError(error.message);
+      if (error.message.toLowerCase().includes('rate limit')) {
+        setError('Too many signup attempts. Please wait a few minutes and try again.');
+      } else if (error.message.toLowerCase().includes('already registered')) {
+        setError('An account with this email already exists. Try signing in instead.');
+      } else {
+        setError(error.message);
+      }
       setLoading(false);
     } else if (data.user && !data.session) {
       // Email confirmation required — redirect to confirmation page

@@ -1,13 +1,52 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 function ConfirmEmailInner() {
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
+  const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
+  const [resendError, setResendError] = useState('');
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  const handleResend = async () => {
+    if (!email || cooldown > 0 || resending) return;
+    setResending(true);
+    setResendError('');
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    setResending(false);
+
+    if (error) {
+      if (error.message.toLowerCase().includes('rate limit')) {
+        setResendError('Please wait a few minutes before requesting another email.');
+      } else {
+        setResendError(error.message);
+      }
+    } else {
+      setResent(true);
+      setCooldown(60);
+      setTimeout(() => setResent(false), 5000);
+    }
+  };
 
   return (
     <div className="h-screen bg-[#F0EFED] flex flex-col overflow-hidden">
@@ -77,12 +116,23 @@ function ConfirmEmailInner() {
             <p className="text-[12px] leading-[1.5] text-[#8F8F87]">
               Didn&apos;t receive the email? Check your spam folder, or
             </p>
+
+            {resendError && (
+              <p className="text-[12px] leading-[1.5] text-red-500">{resendError}</p>
+            )}
+
             <button
-              onClick={() => setResent(true)}
-              disabled={resent}
+              onClick={handleResend}
+              disabled={resending || cooldown > 0}
               className="text-[13px] leading-[1.15] text-[#17803D] hover:underline disabled:text-[#8F8F87] disabled:no-underline transition"
             >
-              {resent ? 'Email resent! Check your inbox.' : 'Resend confirmation email'}
+              {resending
+                ? 'Sending...'
+                : resent
+                ? 'Email resent! Check your inbox.'
+                : cooldown > 0
+                ? `Resend available in ${cooldown}s`
+                : 'Resend confirmation email'}
             </button>
           </div>
 
