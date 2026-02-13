@@ -354,6 +354,54 @@ function VideoExpanded() {
 }
 
 function UploadExpanded() {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [patchedResult, setPatchedResult] = useState<{ patched: string; changes: string[] } | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+
+  const handleFile = async (file: File) => {
+    if (!file.name.endsWith('.json')) {
+      setUploadError('Please upload a .json file');
+      return;
+    }
+    setUploading(true);
+    setUploadError('');
+    setPatchedResult(null);
+
+    try {
+      const text = await file.text();
+      // Validate it's valid JSON
+      JSON.parse(text);
+
+      const res = await fetch('/api/config/patch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config: text }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setUploadError(data.error || 'Failed to patch config');
+      } else {
+        setPatchedResult(data);
+      }
+    } catch {
+      setUploadError('Invalid JSON file. Make sure you selected the right file.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!patchedResult) return;
+    const blob = new Blob([patchedResult.patched], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'openclaw.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="flex flex-col gap-[14px] sm:gap-[16px] px-[12px] sm:px-[20px] pb-[16px] sm:pb-[20px]">
       <div
@@ -380,14 +428,86 @@ function UploadExpanded() {
         </div>
       </div>
 
-      {/* Upload dropzone */}
-      <div
-        className="w-full h-[150px] sm:h-[173px] rounded-[10px] flex flex-col items-center justify-center gap-[12px] cursor-pointer"
-        style={{ backgroundColor: '#FFFFFF', border: '2px dashed #E2E1DC' }}
-      >
-        <Image src="/images/onboarding/icon-file-empty.svg" alt="" width={36} height={36} className="sm:w-[40px] sm:h-[40px]" />
-        <span className="text-[13px] sm:text-[14px] leading-[1.15] text-[#111110]">Click to upload openclaw.json</span>
-      </div>
+      {patchedResult ? (
+        <>
+          {/* Success state */}
+          <div
+            className="w-full rounded-[10px] p-[16px] sm:p-[20px] flex flex-col gap-[12px]"
+            style={{ backgroundColor: '#E2F3EA', border: '2px solid #17803D' }}
+          >
+            <div className="flex items-center gap-[8px]">
+              <Image src="/images/onboarding/icon-checkmark-circle.svg" alt="" width={20} height={20} />
+              <span className="text-[14px] leading-[1.15] text-[#0C5526] font-medium">Config patched successfully!</span>
+            </div>
+            <div className="flex flex-col gap-[4px]">
+              {patchedResult.changes.map((change, i) => (
+                <span key={i} className="text-[12px] leading-[1.5] text-[#0C5526]">
+                  • {change}
+                </span>
+              ))}
+            </div>
+            <button
+              onClick={handleDownload}
+              className="w-full h-[40px] bg-[#17803D] rounded-lg flex items-center justify-center gap-[8px] cursor-pointer mt-[4px]"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <span className="text-[13px] leading-[1.15] text-white">Download patched openclaw.json</span>
+            </button>
+          </div>
+          <button
+            onClick={() => setPatchedResult(null)}
+            className="text-[12px] text-[#8F8F87] hover:text-[#55554F] transition text-center cursor-pointer"
+          >
+            Upload a different file
+          </button>
+        </>
+      ) : (
+        <>
+          {/* Upload dropzone */}
+          <label
+            className="w-full h-[150px] sm:h-[173px] rounded-[10px] flex flex-col items-center justify-center gap-[12px] cursor-pointer transition-colors"
+            style={{
+              backgroundColor: dragOver ? '#F6FFFA' : '#FFFFFF',
+              border: dragOver ? '2px dashed #17803D' : '2px dashed #E2E1DC',
+            }}
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOver(false);
+              const file = e.dataTransfer.files[0];
+              if (file) handleFile(file);
+            }}
+          >
+            <input
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFile(file);
+              }}
+            />
+            {uploading ? (
+              <div className="flex flex-col items-center gap-[8px]">
+                <div className="w-[24px] h-[24px] rounded-full border-[2px] border-[#E2E1DC] border-t-[#17803D] animate-spin" />
+                <span className="text-[13px] text-[#55554F]">Patching config...</span>
+              </div>
+            ) : (
+              <>
+                <Image src="/images/onboarding/icon-file-empty.svg" alt="" width={36} height={36} className="sm:w-[40px] sm:h-[40px]" />
+                <span className="text-[13px] sm:text-[14px] leading-[1.15] text-[#111110]">
+                  {dragOver ? 'Drop your file here' : 'Click to upload openclaw.json'}
+                </span>
+                <span className="text-[11px] text-[#8F8F87]">or drag and drop</span>
+              </>
+            )}
+          </label>
+          {uploadError && (
+            <p className="text-[12px] text-red-500 text-center">{uploadError}</p>
+          )}
+        </>
+      )}
     </div>
   );
 }
