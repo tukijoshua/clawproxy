@@ -12,15 +12,14 @@ export function Footer() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 bg-brand-blue rounded-lg" />
-              <span className="text-2xl font-bold text-brand-white">Kreos</span>
+              <span className="text-2xl font-bold text-brand-white">ClawProxy</span>
             </div>
             <p className="text-brand-gray-400 mb-6 max-w-sm">
-              The #1 studio building products with Claude Code.
-              Ship in 7 days, not months.
+              AI cost optimization for developers. Route smarter, spend less.
             </p>
             <div className="flex gap-4">
               <a
-                href="https://twitter.com/kreosagency"
+                href="https://x.com/TukiFromKL"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-lg bg-brand-gray-900 flex items-center justify-center text-brand-gray-400 hover:text-brand-white hover:bg-brand-gray-800 transition"
@@ -28,7 +27,7 @@ export function Footer() {
                 <Twitter className="w-5 h-5" />
               </a>
               <a
-                href="mailto:hello@kreos.agency"
+                href="mailto:hello@clawproxy.ai"
                 className="w-10 h-10 rounded-lg bg-brand-gray-900 flex items-center justify-center text-brand-gray-400 hover:text-brand-white hover:bg-brand-gray-800 transition"
               >
                 <Mail className="w-5 h-5" />
@@ -100,7 +99,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="pt-8 border-t border-brand-gray-900 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-brand-gray-500 text-sm">
-            © 2026 Kreos. Built with Claude Code
+            © 2026 ClawProxy. Built with Claude Code
           </p>
           <div className="flex gap-6 text-sm">
             <Link href="#" className="text-brand-gray-500 hover:text-brand-white transition">

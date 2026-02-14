@@ -1,6 +1,6 @@
 # Database Schema Documentation
 
-This document describes the Supabase database schema for the Kreos.agency platform.
+This document describes the Supabase database schema for the ClawProxy platform.
 
 ## Setup Instructions
 
@@ -292,7 +292,7 @@ CREATE TRIGGER update_tasks_updated_at BEFORE UPDATE ON tasks
 
 ## Setup Complete!
 
-After running all these commands, your database will be ready for the Kreos.agency platform.
+After running all these commands, your database will be ready for the ClawProxy platform.
 
 ## Next Steps
 

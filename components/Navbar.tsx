@@ -29,7 +29,7 @@ export function Navbar() {
           <div className="flex justify-between items-center">
             <Link href="/dashboard" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-brand-blue rounded-lg" />
-              <span className="text-xl font-bold text-brand-black">Kreos</span>
+              <span className="text-xl font-bold text-brand-black">ClawProxy</span>
             </Link>
 
             <div className="flex items-center gap-4">
@@ -68,7 +68,7 @@ export function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-brand-blue rounded-lg" />
-              <span className="text-xl font-bold text-brand-white">Kreos</span>
+              <span className="text-xl font-bold text-brand-white">ClawProxy</span>
             </Link>
 
             {/* Desktop nav */}

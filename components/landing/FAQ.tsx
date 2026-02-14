@@ -133,7 +133,7 @@ export function FAQ() {
             Still have questions?
           </p>
           <a
-            href="mailto:hello@kreos.agency"
+            href="mailto:hello@clawproxy.ai"
             className="text-brand-blue hover:underline font-semibold text-lg"
           >
             Email us →

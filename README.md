@@ -1,21 +1,15 @@
-# Kreos.agency - AI-Powered Product Studio Platform
+# ClawProxy - AI Cost Optimization Proxy
 
-A Next.js application featuring a public landing page and private client dashboard for managing product development projects.
+An intelligent proxy that routes AI agent requests to the most cost-effective model based on task complexity. Save 60-70% on LLM costs without sacrificing quality.
 
 ## Features
 
-### Public Landing Page
-- Hero section with animated grid background
-- Problem/Solution presentation
-- Services showcase with pricing
-- Multi-step onboarding flow
-
-### Client Dashboard
-- Project overview and management
-- Kanban board for task tracking
-- File upload and management
-- Real-time messaging
-- Payment tracking
+- **Smart Request Routing** - Automatically classifies request complexity and routes to cheaper models when appropriate
+- **Cost Savings Dashboard** - Real-time analytics showing spend, savings, and routing decisions
+- **Multi-step Onboarding** - Guided setup flow for connecting your AI agents
+- **Team Management** - Invite team members and manage API keys
+- **Runaway Loop Detection** - Automatically kills stuck agent loops to prevent budget blowouts
+- **Budget Enforcement** - Set spending limits per agent or team
 
 ## Tech Stack
 
@@ -43,7 +37,7 @@ A Next.js application featuring a public landing page and private client dashboa
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd kreosagency
+cd clawproxy
 ```
 
 2. Install dependencies:
@@ -58,8 +52,8 @@ cp .env.example .env.local
 
 Edit `.env.local` with your actual values:
 - Supabase URL and keys (from your Supabase project settings)
-- Stripe keys (optional, for future payment integration)
-- Resend API key (optional, for future email integration)
+- Stripe keys (optional, for payment integration)
+- Resend API key (optional, for email integration)
 
 4. Set up the database:
 - Go to your Supabase project dashboard
@@ -79,87 +73,26 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 /app
   ├── (public)           # Public routes (landing page)
   ├── (dashboard)        # Protected dashboard routes
-  │   └── dashboard/     # Dashboard home and project pages
+  │   └── dashboard/     # Dashboard home, agents, analytics, settings
+  ├── api/               # API endpoints (proxy, keys, onboarding)
   ├── auth/              # Authentication pages
   │   ├── login/
   │   ├── signup/
   │   └── callback/
-  └── start/             # Onboarding flow
+  ├── onboarding/        # Multi-step onboarding flow
+  └── docs/              # Documentation page
 
 /components
   ├── landing/           # Landing page components
-  │   ├── Hero.tsx
-  │   ├── Problem.tsx
-  │   ├── Solution.tsx
-  │   └── Services.tsx
-  ├── dashboard/         # Dashboard components (TBD)
-  ├── onboarding/        # Onboarding components (TBD)
+  ├── dashboard/         # Dashboard components
   └── ui/                # Reusable UI components
-      ├── Button.tsx
-      ├── Input.tsx
-      ├── Card.tsx
-      └── Modal.tsx
 
 /lib
   ├── supabase/          # Supabase client configuration
-  │   ├── client.ts      # Client-side Supabase client
-  │   ├── server.ts      # Server-side Supabase client
-  │   └── types.ts       # TypeScript types for database
-  └── utils/             # Utility functions
-      ├── format.ts      # Formatting utilities
-      └── validation.ts  # Validation utilities
-
-/docs
-  └── DATABASE_SCHEMA.md # Complete database setup guide
+  ├── proxy/             # Proxy routing logic
+  ├── api/               # API helpers
+  └── hooks/             # React hooks
 ```
-
-## Key Components
-
-### Landing Page Components
-
-- **Hero**: Main hero section with CTA buttons
-- **Problem**: Highlights issues with traditional agencies
-- **Solution**: Showcases Kreos's approach and timeline comparison
-- **Services**: Displays service offerings with pricing
-
-### Dashboard Components
-
-- **Dashboard Home**: Overview of all client projects
-- **Project Detail**: Detailed view with tabs for:
-  - Overview (timeline and progress)
-  - Progress Board (Kanban board)
-  - Files (file management)
-  - Messages (communication)
-  - Payment (payment info)
-
-### UI Components
-
-- **Button**: Customizable button with variants and loading states
-- **Input**: Form input with label, error, and helper text
-- **Card**: Container component with hover effects
-- **Modal**: Accessible modal dialog
-
-## Database Schema
-
-The application uses the following main tables:
-
-- **clients**: User accounts and profiles
-- **projects**: Project information and status
-- **tasks**: Kanban board tasks
-- **messages**: Client-team communication
-- **files**: File metadata (files stored in Supabase Storage)
-- **payments**: Payment tracking and Stripe integration
-
-See `docs/DATABASE_SCHEMA.md` for complete schema and setup instructions.
-
-## Authentication
-
-Authentication is handled by Supabase Auth with email/password login. The auth flow includes:
-
-1. User signs up or logs in
-2. Supabase handles session management
-3. Protected routes check for valid session
-4. Users are redirected to dashboard on successful auth
 
 ## Deployment
 
@@ -170,60 +103,10 @@ Authentication is handled by Supabase Auth with email/password login. The auth f
 3. Add environment variables in Vercel dashboard
 4. Deploy
 
-### Other Platforms
-
-The app can be deployed to any platform that supports Next.js:
-- Netlify
-- Railway
-- AWS Amplify
-- Self-hosted with Docker
-
-## Future Enhancements
-
-- [ ] Real-time updates using Supabase Realtime
-- [ ] File upload functionality with drag-and-drop
-- [ ] Stripe payment integration
-- [ ] Email notifications with Resend
-- [ ] Admin dashboard for team members
-- [ ] WebSocket-based messaging
-- [ ] PDF export for project reports
-- [ ] Calendar integration for deadlines
-
-## Development Guidelines
-
-### Code Style
-
-- Use TypeScript for all new files
-- Follow the existing component structure
-- Use Tailwind CSS for styling (avoid custom CSS)
-- Prefer server components unless interactivity is needed
-
-### Component Guidelines
-
-- Keep components small and focused
-- Use proper TypeScript types
-- Add error handling
-- Include loading states
-- Make components accessible
-
-### Git Workflow
-
-1. Create feature branch from main
-2. Make changes and commit with clear messages
-3. Push to remote
-4. Create pull request for review
-
-## Support
-
-For issues and questions:
-- Check the documentation in `/docs`
-- Review the database schema
-- Check Supabase logs for auth/database issues
-
 ## License
 
-This project is private and proprietary to Kreos.agency.
+This project is private and proprietary to ClawProxy.
 
 ---
 
-**Built with Claude Code - Ship 10x faster.**
+**Built with Claude Code.**

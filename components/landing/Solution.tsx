@@ -80,7 +80,7 @@ export function Solution() {
             </div>
           </motion.div>
 
-          {/* Kreos */}
+          {/* ClawProxy */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -88,7 +88,7 @@ export function Solution() {
             viewport={{ once: true }}
             className="bg-gradient-to-br from-brand-blue to-cyan-600 rounded-2xl p-8"
           >
-            <h3 className="text-2xl font-bold text-brand-white mb-6">Kreos</h3>
+            <h3 className="text-2xl font-bold text-brand-white mb-6">ClawProxy</h3>
             <div className="space-y-4">
               <div className="border-l-4 border-white/30 pl-4">
                 <p className="text-white/70">Day 1</p>
