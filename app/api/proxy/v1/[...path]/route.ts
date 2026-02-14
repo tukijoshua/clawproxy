@@ -154,17 +154,32 @@ export async function POST(
       return NextResponse.json({ error: { message: 'No stream from upstream' } }, { status: 502 })
     }
 
+    // Log IMMEDIATELY before streaming starts — guarantees the request is captured
+    // even if the function dies during/after streaming
+    const supabase = getServiceClient()
+    const { data: logRow } = await supabase.from('request_logs').insert({
+      user_id: userId,
+      api_key_id: apiKeyId,
+      model: actualModel,
+      requested_model: requestedModel,
+      prompt_tokens: 0,
+      completion_tokens: 0,
+      total_tokens: 0,
+      cost: 0,
+      estimated_direct_cost: 0,
+      latency_ms: 0,
+      status: 'success',
+      agent_label: label,
+      request_hash: reqHash ?? null,
+      error_message: null,
+    }).select('id').single()
+
+    const logId = logRow?.id
+
     let promptTokens = 0
     let completionTokens = 0
     const decoder = new TextDecoder()
     let buffer = ''
-
-    // Create a promise that resolves when the stream ends,
-    // so we can use waitUntil at the top level
-    let resolveStreamDone: () => void
-    const streamDonePromise = new Promise<void>((resolve) => {
-      resolveStreamDone = resolve
-    })
 
     const stream = new ReadableStream({
       async pull(controller) {
@@ -172,8 +187,19 @@ export async function POST(
           const { done, value } = await reader.read()
           if (done) {
             controller.close()
-            // Signal that stream is done — logging happens via waitUntil below
-            resolveStreamDone()
+            // Best-effort update with final token counts
+            if (logId) {
+              const { cost } = calculateCost(actualModel, promptTokens, completionTokens)
+              const estDirect = calculateEstimatedDirectCost(requestedModel, actualModel, promptTokens, completionTokens)
+              supabase.from('request_logs').update({
+                prompt_tokens: promptTokens,
+                completion_tokens: completionTokens,
+                total_tokens: promptTokens + completionTokens,
+                cost,
+                estimated_direct_cost: estDirect,
+                latency_ms: Date.now() - startTime,
+              }).eq('id', logId).then(() => {})
+            }
             return
           }
 
@@ -200,34 +226,9 @@ export async function POST(
           controller.enqueue(value)
         } catch {
           controller.close()
-          resolveStreamDone()
         }
       },
     })
-
-    // Register the logging work with waitUntil at the REQUEST level
-    // This keeps the function alive after the stream response is sent
-    waitUntil(
-      streamDonePromise.then(() => {
-        const { cost } = calculateCost(actualModel, promptTokens, completionTokens)
-        const estDirect = calculateEstimatedDirectCost(requestedModel, actualModel, promptTokens, completionTokens)
-        return logRequest({
-          userId,
-          apiKeyId,
-          model: actualModel,
-          requestedModel,
-          promptTokens,
-          completionTokens,
-          totalTokens: promptTokens + completionTokens,
-          cost,
-          estimatedDirectCost: estDirect,
-          status: 'success',
-          agentLabel: label,
-          requestHash: reqHash,
-          latencyMs: Date.now() - startTime,
-        })
-      })
-    )
 
     return new Response(stream, {
       status: upstreamRes.status,
