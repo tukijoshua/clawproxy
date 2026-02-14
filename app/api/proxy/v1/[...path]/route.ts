@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { waitUntil } from '@vercel/functions'
 import { validateApiKey } from '@/lib/proxy/auth'
 import { checkBudget } from '@/lib/proxy/budget-guard'
 import { hashRequest, detectLoop } from '@/lib/proxy/loop-detector'
@@ -156,8 +155,9 @@ export async function POST(
 
     // Log IMMEDIATELY before streaming starts — guarantees the request is captured
     // even if the function dies during/after streaming
+    console.log('[ClawProxy] Streaming request — inserting log row before stream starts')
     const supabase = getServiceClient()
-    const { data: logRow } = await supabase.from('request_logs').insert({
+    const { data: logRow, error: insertError } = await supabase.from('request_logs').insert({
       user_id: userId,
       api_key_id: apiKeyId,
       model: actualModel,
@@ -174,6 +174,11 @@ export async function POST(
       error_message: null,
     }).select('id').single()
 
+    if (insertError) {
+      console.error('[ClawProxy] Streaming log insert FAILED:', insertError.message, insertError.details)
+    } else {
+      console.log('[ClawProxy] Streaming log insert OK, id:', logRow?.id)
+    }
     const logId = logRow?.id
 
     let promptTokens = 0
