@@ -1,27 +1,22 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import type { RealtimeChannel } from '@supabase/supabase-js'
 
 /**
- * Like useAnalytics, but also subscribes to Supabase Realtime
- * on the given table(s) and refetches when changes are detected.
- * Debounces rapid changes to avoid hammering the API.
+ * Like useAnalytics, but auto-polls on an interval.
+ * No Supabase Realtime config needed.
  */
 export function useRealtimeAnalytics<T>(
   url: string | null,
-  tables: string[],
-  opts?: { debounceMs?: number; filter?: string }
+  _tables: string[],
+  opts?: { pollIntervalMs?: number }
 ) {
   const [data, setData] = useState<T | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const channelRef = useRef<RealtimeChannel | null>(null)
 
-  const debounceMs = opts?.debounceMs ?? 2000
+  const pollInterval = opts?.pollIntervalMs ?? 12000
 
   const fetchData = useCallback(async () => {
     if (!url) {
@@ -47,46 +42,18 @@ export function useRealtimeAnalytics<T>(
     }
   }, [url])
 
-  // Debounced refetch — batches rapid DB changes
-  const debouncedRefetch = useCallback(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
-      fetchData()
-    }, debounceMs)
-  }, [fetchData, debounceMs])
-
   // Initial fetch
   useEffect(() => {
     fetchData()
     return () => abortRef.current?.abort()
   }, [fetchData])
 
-  // Supabase Realtime subscription
+  // Auto-poll
   useEffect(() => {
-    if (tables.length === 0) return
-
-    const supabase = createClient()
-    const channelName = `realtime-analytics-${tables.join('-')}-${Date.now()}`
-    const channel = supabase.channel(channelName)
-
-    for (const table of tables) {
-      channel.on(
-        'postgres_changes' as any,
-        { event: '*', schema: 'public', table },
-        () => {
-          debouncedRefetch()
-        }
-      )
-    }
-
-    channel.subscribe()
-    channelRef.current = channel
-
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-      channel.unsubscribe()
-    }
-  }, [tables.join(','), debouncedRefetch])
+    if (!url) return
+    const id = setInterval(fetchData, pollInterval)
+    return () => clearInterval(id)
+  }, [fetchData, pollInterval, url])
 
   return { data, loading, error, refetch: fetchData }
 }
