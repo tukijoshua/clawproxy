@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { waitUntil } from '@vercel/functions'
 import { validateApiKey } from '@/lib/proxy/auth'
 import { checkBudget } from '@/lib/proxy/budget-guard'
 import { hashRequest, detectLoop } from '@/lib/proxy/loop-detector'
@@ -164,10 +165,11 @@ export async function POST(
           const { done, value } = await reader.read()
           if (done) {
             controller.close()
-            // Log after stream completes
+            // Log after stream completes — use waitUntil so Vercel
+            // doesn't kill the function before the DB write finishes
             const { cost } = calculateCost(actualModel, promptTokens, completionTokens)
             const estDirect = calculateEstimatedDirectCost(requestedModel, actualModel, promptTokens, completionTokens)
-            await logRequest({
+            waitUntil(logRequest({
               userId,
               apiKeyId,
               model: actualModel,
@@ -181,7 +183,7 @@ export async function POST(
               agentLabel: label,
               requestHash: reqHash,
               latencyMs: Date.now() - startTime,
-            })
+            }))
             return
           }
 
