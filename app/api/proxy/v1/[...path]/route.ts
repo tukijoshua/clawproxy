@@ -10,13 +10,25 @@ import { getServiceClient } from '@/lib/supabase/service'
 const OPENROUTER_BASE = 'https://openrouter.ai/api/v1'
 
 function extractKey(request: Request): string | null {
+  // 1. Check x-clawproxy-key header first (explicit ClawProxy key)
+  const header = request.headers.get('x-clawproxy-key')
+  if (header?.startsWith('cp_sk_')) return header
+
+  // 2. Check Authorization: Bearer for cp_sk_ keys
   const auth = request.headers.get('authorization')
   if (auth?.startsWith('Bearer ')) {
     const token = auth.slice(7)
     if (token.startsWith('cp_sk_')) return token
+    // Also accept any Bearer token (e.g. Anthropic sk-ant-... keys)
+    // These will be hashed and looked up in api_keys just like cp_sk_ keys
+    if (token.length > 10) return token
   }
-  const header = request.headers.get('x-clawproxy-key')
-  if (header?.startsWith('cp_sk_')) return header
+
+  // 3. Check x-api-key header (Anthropic-style clients send auth here)
+  const xApiKey = request.headers.get('x-api-key')
+  if (xApiKey?.startsWith('cp_sk_')) return xApiKey
+  if (xApiKey && xApiKey.length > 10) return xApiKey
+
   return null
 }
 
