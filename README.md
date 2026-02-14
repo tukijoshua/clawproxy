@@ -2,6 +2,8 @@
 
 **Your AI agents are burning money. ClawProxy fixes that.**
 
+> **[clawproxy.ai](https://clawproxy.ai)** | **[@TukiFromKL](https://x.com/TukiFromKL)**
+
 ClawProxy is an intelligent proxy that sits between your AI agents and LLM providers. It automatically classifies request complexity and routes simple tasks to cheaper models while keeping premium models for complex work. The result: **60-70% cost savings** with zero quality loss.
 
 Average user goes from **$312/mo to $84/mo** on LLM spend.
@@ -19,9 +21,104 @@ Your Agent  -->  ClawProxy Proxy  -->  Smart Router  -->  Best Model for the Job
               Loop Detection         Routing Rules
 ```
 
-1. **Get your API key** (30 seconds) - Sign up and generate a ClawProxy API key
+1. **Get your API key** (30 seconds) - Sign up at [clawproxy.ai](https://clawproxy.ai) and generate an API key
 2. **Point your agent to ClawProxy** (60 seconds) - Swap your base URL to `https://www.clawproxy.ai/api/proxy/v1`
 3. **Watch your bill drop** - ClawProxy handles the rest automatically
+
+---
+
+## Connect Your Agent
+
+There are two ways to configure your agent to route through ClawProxy.
+
+### Option 1: Automatic Setup (Recommended)
+
+Run a single command in your terminal:
+
+```bash
+curl -fsSL https://www.clawproxy.ai/setup | bash
+```
+
+The script will:
+1. Ask for your ClawProxy API key (starts with `cp_sk_`)
+2. Auto-detect your OpenClaw config file (`~/.openclaw/openclaw.json`)
+3. Create a backup of your current config
+4. Patch the config to route through ClawProxy
+5. Verify the changes
+
+After the script completes, restart your agent:
+
+```bash
+openclaw restart
+```
+
+### Option 2: Manual Setup
+
+Open your OpenClaw config file:
+
+```bash
+~/.openclaw/openclaw.json
+# or
+~/.config/openclaw/openclaw.json
+```
+
+Add or merge the following into your config:
+
+```json
+{
+  "models": {
+    "providers": {
+      "anthropic": {
+        "baseUrl": "https://www.clawproxy.ai/api/proxy/v1",
+        "headers": {
+          "x-clawproxy-key": "cp_sk_your_api_key_here"
+        },
+        "models": [
+          { "id": "claude-opus-4-0-20250514", "name": "Claude Opus 4", "contextWindow": 200000, "maxTokens": 32000 },
+          { "id": "claude-opus-4-6", "name": "Claude Opus 4.6", "contextWindow": 200000, "maxTokens": 32000 },
+          { "id": "claude-sonnet-4-5-20250929", "name": "Claude Sonnet 4.5", "contextWindow": 200000, "maxTokens": 16000 },
+          { "id": "claude-sonnet-4-0-20250514", "name": "Claude Sonnet 4", "contextWindow": 200000, "maxTokens": 16000 },
+          { "id": "claude-haiku-4-5-20251001", "name": "Claude Haiku 4.5", "contextWindow": 200000, "maxTokens": 8192 }
+        ]
+      }
+    }
+  }
+}
+```
+
+Save the file and restart your agent:
+
+```bash
+openclaw gateway restart
+```
+
+### What Changed
+
+The only thing that changes is the `baseUrl`. Instead of sending requests directly to Anthropic:
+
+```
+// Before (direct to Anthropic)
+"baseUrl": "https://api.anthropic.com"
+
+// After (routed through ClawProxy)
+"baseUrl": "https://www.clawproxy.ai/api/proxy/v1"
+```
+
+Your agent doesn't notice any difference. Requests and responses look identical. ClawProxy just routes them smarter.
+
+### Verify Connection
+
+After configuring, go to your [ClawProxy dashboard](https://clawproxy.ai/dashboard) and check that your agent shows as **Connected**. You can also trigger a test request from the onboarding flow to verify everything is working.
+
+### Supported Headers
+
+ClawProxy accepts your API key via any of these headers:
+
+| Header | Example |
+|--------|---------|
+| `x-clawproxy-key` | `cp_sk_your_key` (recommended) |
+| `Authorization` | `Bearer cp_sk_your_key` |
+| `x-api-key` | `cp_sk_your_key` |
 
 ---
 
@@ -397,6 +494,9 @@ clawproxy/
 ## Built By
 
 **Tuki Joshua** - [@TukiFromKL](https://x.com/TukiFromKL)
+
+- Platform: [clawproxy.ai](https://clawproxy.ai)
+- Twitter/X: [x.com/TukiFromKL](https://x.com/TukiFromKL)
 
 Built with [Claude Code](https://claude.ai/claude-code).
 
