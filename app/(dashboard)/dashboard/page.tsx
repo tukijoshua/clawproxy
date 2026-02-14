@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { usePlan } from '@/lib/user-context';
 import { useAnalytics } from '@/lib/hooks/use-analytics';
 import { StatCardSkeleton, ChartSkeleton, TableSkeleton } from '@/components/dashboard/loading-skeleton';
-import { EmptyState } from '@/components/dashboard/empty-state';
+import { DashboardEmptyState } from '@/components/dashboard/dashboard-empty-state';
 
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
 const fadeUp = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const } } };
@@ -23,7 +23,7 @@ interface OverviewData {
   modelDistribution: Array<{ name: string; pct: number; cost: number; requests: number }>;
   dailyCostData: Array<{ day: string; actual: number; without: number }>;
   savingsBreakdown: { routing: number; loops: number };
-  agentPerformance: Array<{ id: string; label: string; spend: number; saved: number; requests: number; loops: number; active: boolean }>;
+  agentPerformance: Array<{ id: string; label: string; spend: number; saved: number; requests: number; loops: number; active: boolean; connectionStatus?: 'connected' | 'idle' | 'disconnected' | 'revoked' }>;
   budgetUsage: { dailySpend: number; monthlySpend: number; dailyBudget: number | null; monthlyBudget: number | null };
   activityByHour: number[];
 }
@@ -53,6 +53,13 @@ function fmt(n: number) {
   return n < 1 ? `$${n.toFixed(4)}` : `$${n.toFixed(2)}`;
 }
 
+const CONNECTION_STATUS_CONFIG: Record<string, { label: string; dotColor: string; bgColor: string; textColor: string }> = {
+  connected: { label: 'Connected', dotColor: '#22C55E', bgColor: '#E2F3EA', textColor: '#17803D' },
+  idle: { label: 'Idle', dotColor: '#EAB308', bgColor: '#FFF8E1', textColor: '#92750C' },
+  disconnected: { label: 'Disconnected', dotColor: '#EF4444', bgColor: '#FFF5F5', textColor: '#DC2626' },
+  revoked: { label: 'Revoked', dotColor: '#B8B8B0', bgColor: '#EEEDEA', textColor: '#B8B8B0' },
+};
+
 export default function DashboardPage() {
   const { isPaid, canExportCsv, canUseLoopDetection } = usePlan();
   const [timeRange, setTimeRange] = useState<TimeRange>('today');
@@ -60,7 +67,14 @@ export default function DashboardPage() {
   const [hoveredSkill, setHoveredSkill] = useState<number | null>(null);
   const [selectedAgent, setSelectedAgent] = useState('all');
 
-  const apiUrl = `/api/analytics/overview?range=${timeRange}&agent=${selectedAgent}`;
+  // Cache-bust when navigating from reconnect page (?refreshed=1)
+  const [cacheBuster] = useState(() => {
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('refreshed') === '1') {
+      return `&_t=${Date.now()}`;
+    }
+    return '';
+  });
+  const apiUrl = `/api/analytics/overview?range=${timeRange}&agent=${selectedAgent}${cacheBuster}`;
   const { data, loading } = useAnalytics<OverviewData>(apiUrl, [timeRange, selectedAgent]);
 
   const today = new Date().toLocaleDateString('en-US', {
@@ -71,12 +85,6 @@ export default function DashboardPage() {
   });
 
   const isEmpty = !loading && data && data.requestCount === 0;
-  const appUrl = typeof window !== 'undefined' ? window.location.origin : '';
-
-  const handleCopyEndpoint = () => {
-    navigator.clipboard.writeText(`${appUrl}/api/proxy/v1`);
-  };
-
   return (
     <motion.div variants={stagger} initial="hidden" animate="show">
       {/* Header */}
@@ -162,7 +170,7 @@ export default function DashboardPage() {
             >
               <div
                 className="w-[7px] h-[7px] rounded-full shrink-0"
-                style={{ backgroundColor: agent.active ? '#22C55E' : '#B8B8B0' }}
+                style={{ backgroundColor: agent.connectionStatus ? (CONNECTION_STATUS_CONFIG[agent.connectionStatus]?.dotColor ?? '#B8B8B0') : (agent.active ? '#22C55E' : '#B8B8B0') }}
               />
               <span className="text-[12.5px] leading-[1.15] text-[#111110] whitespace-nowrap" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
                 {agent.label}
@@ -194,12 +202,7 @@ export default function DashboardPage() {
       {/* ── Empty state ──────────────────────────────────── */}
       {isEmpty && (
         <motion.div variants={fadeUp} className="bg-white border border-[#E2E1DC] rounded-[12px] shadow-claw-sm mb-[7px]">
-          <EmptyState
-            icon="/images/dashboard/robot-01.svg"
-            title="No requests yet"
-            description="Point your agent at the ClawProxy endpoint and send your first request to see real-time stats."
-            action={{ label: 'Copy proxy endpoint', onClick: handleCopyEndpoint }}
-          />
+          <DashboardEmptyState />
         </motion.div>
       )}
 
@@ -575,14 +578,17 @@ export default function DashboardPage() {
                   <span key={h} className="text-[10px] leading-[1.15] text-[#B8B8B0] uppercase" style={{ fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.06em' }}>{h}</span>
                 ))}
               </div>
-              {data.agentPerformance.map((agent, i) => (
+              {data.agentPerformance.map((agent, i) => {
+                const cs = agent.connectionStatus ? CONNECTION_STATUS_CONFIG[agent.connectionStatus] : (agent.active ? CONNECTION_STATUS_CONFIG.connected : CONNECTION_STATUS_CONFIG.idle);
+                const csLabel = agent.connectionStatus ? cs.label : (agent.active ? 'Active' : 'Idle');
+                return (
                 <div key={agent.id}>
                   <div className="hidden sm:grid h-[44px] items-center px-[20px] hover:bg-[#FAFAF8] transition" style={{ gridTemplateColumns: '1fr 100px 80px 80px 80px 60px', borderBottom: i < data.agentPerformance.length - 1 ? '1px solid #EEEDE9' : 'none' }}>
                     <span className="text-[13px] text-[#111110]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{agent.label}</span>
                     <div>
-                      <span className="inline-flex items-center gap-[5px] h-[18px] px-[8px] rounded-[20px] text-[10px]" style={{ backgroundColor: agent.active ? '#E2F3EA' : '#EEEDEA', fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.03em' }}>
-                        <span className="w-[7px] h-[7px] rounded-full" style={{ backgroundColor: agent.active ? '#22C55E' : '#B8B8B0' }} />
-                        <span style={{ color: agent.active ? '#17803D' : '#B8B8B0' }}>{agent.active ? 'Active' : 'Idle'}</span>
+                      <span className="inline-flex items-center gap-[5px] h-[18px] px-[8px] rounded-[20px] text-[10px]" style={{ backgroundColor: cs.bgColor, fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.03em' }}>
+                        <span className="w-[7px] h-[7px] rounded-full" style={{ backgroundColor: cs.dotColor }} />
+                        <span style={{ color: cs.textColor }}>{csLabel}</span>
                       </span>
                     </div>
                     <span className="text-[12.5px] text-[#111110]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{fmt(agent.spend)}</span>
@@ -593,9 +599,9 @@ export default function DashboardPage() {
                   <div className="sm:hidden px-[16px] py-[12px]" style={{ borderBottom: i < data.agentPerformance.length - 1 ? '1px solid #EEEDE9' : 'none' }}>
                     <div className="flex items-center justify-between mb-[6px]">
                       <span className="text-[13px] text-[#111110]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{agent.label}</span>
-                      <span className="inline-flex items-center gap-[4px] h-[18px] px-[8px] rounded-[20px] text-[10px]" style={{ backgroundColor: agent.active ? '#E2F3EA' : '#EEEDEA', color: agent.active ? '#17803D' : '#B8B8B0', fontFamily: 'Aeonik Pro, sans-serif' }}>
-                        <span className="w-[6px] h-[6px] rounded-full" style={{ backgroundColor: agent.active ? '#22C55E' : '#B8B8B0' }} />
-                        {agent.active ? 'Active' : 'Idle'}
+                      <span className="inline-flex items-center gap-[4px] h-[18px] px-[8px] rounded-[20px] text-[10px]" style={{ backgroundColor: cs.bgColor, color: cs.textColor, fontFamily: 'Aeonik Pro, sans-serif' }}>
+                        <span className="w-[6px] h-[6px] rounded-full" style={{ backgroundColor: cs.dotColor }} />
+                        {csLabel}
                       </span>
                     </div>
                     <div className="flex items-center gap-[16px] text-[11px] text-[#8F8F87]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>
@@ -605,7 +611,8 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </motion.div>
           )}
         </>

@@ -86,9 +86,31 @@ Write-Host "Patching config with ClawProxy settings..."
 
 try {
     $config = Get-Content $ConfigFile -Raw | ConvertFrom-Json
-    $config | Add-Member -NotePropertyName "apiBaseUrl" -NotePropertyValue "https://api.clawproxy.ai/v1" -Force
+
+    # Ensure models.providers.anthropic path exists
+    if (-not $config.models) {
+        $config | Add-Member -NotePropertyName "models" -NotePropertyValue ([PSCustomObject]@{}) -Force
+    }
+    if (-not $config.models.providers) {
+        $config.models | Add-Member -NotePropertyName "providers" -NotePropertyValue ([PSCustomObject]@{}) -Force
+    }
+    if (-not $config.models.providers.anthropic) {
+        $config.models.providers | Add-Member -NotePropertyName "anthropic" -NotePropertyValue ([PSCustomObject]@{}) -Force
+    }
+
+    $config.models.providers.anthropic | Add-Member -NotePropertyName "baseUrl" -NotePropertyValue "https://www.clawproxy.ai/api/proxy/v1" -Force
     $headers = [PSCustomObject]@{ "x-clawproxy-key" = $ApiKey }
-    $config | Add-Member -NotePropertyName "customHeaders" -NotePropertyValue $headers -Force
+    $config.models.providers.anthropic | Add-Member -NotePropertyName "headers" -NotePropertyValue $headers -Force
+    if (-not $config.models.providers.anthropic.models) {
+        $models = @(
+            [PSCustomObject]@{ id = "claude-opus-4-0-20250514"; name = "Claude Opus 4"; contextWindow = 200000; maxTokens = 32000 },
+            [PSCustomObject]@{ id = "claude-opus-4-6"; name = "Claude Opus 4.6"; contextWindow = 200000; maxTokens = 32000 },
+            [PSCustomObject]@{ id = "claude-sonnet-4-5-20250929"; name = "Claude Sonnet 4.5"; contextWindow = 200000; maxTokens = 16000 },
+            [PSCustomObject]@{ id = "claude-haiku-4-5-20251001"; name = "Claude Haiku 4.5"; contextWindow = 200000; maxTokens = 8192 }
+        )
+        $config.models.providers.anthropic | Add-Member -NotePropertyName "models" -NotePropertyValue $models -Force
+    }
+
     $config | ConvertTo-Json -Depth 10 | Set-Content $ConfigFile -Encoding UTF8
     Write-Host "  ✓ Patched successfully" -ForegroundColor Green
 } catch {
@@ -105,10 +127,10 @@ Write-Host "Step 5: " -NoNewline -ForegroundColor White
 Write-Host "Verifying..."
 $content = Get-Content $ConfigFile -Raw
 
-if ($content -match "api.clawproxy.ai") {
-    Write-Host "  ✓ apiBaseUrl set correctly" -ForegroundColor Green
+if ($content -match "clawproxy.ai/api/proxy/v1") {
+    Write-Host "  ✓ ClawProxy provider baseUrl set correctly" -ForegroundColor Green
 } else {
-    Write-Host "  ✗ apiBaseUrl not found in config" -ForegroundColor Red
+    Write-Host "  ✗ ClawProxy baseUrl not found in config" -ForegroundColor Red
     exit 1
 }
 

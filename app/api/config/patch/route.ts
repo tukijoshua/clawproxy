@@ -29,31 +29,34 @@ export async function POST(request: Request) {
       )
     }
 
-    // Add ClawProxy settings
-    parsed.apiBaseUrl = 'https://api.clawproxy.ai/v1'
+    // Override Anthropic provider to route through ClawProxy
+    const models = (parsed.models as Record<string, unknown>) ?? {}
+    const providers = (models.providers as Record<string, unknown>) ?? {}
+    const anthropic = (providers.anthropic as Record<string, unknown>) ?? {}
 
-    if (apiKey) {
-      parsed.customHeaders = {
-        ...(typeof parsed.customHeaders === 'object' && parsed.customHeaders !== null
-          ? parsed.customHeaders as Record<string, unknown>
-          : {}),
-        'x-clawproxy-key': apiKey,
-      }
-    } else {
-      parsed.customHeaders = {
-        ...(typeof parsed.customHeaders === 'object' && parsed.customHeaders !== null
-          ? parsed.customHeaders as Record<string, unknown>
-          : {}),
-        'x-clawproxy-key': 'YOUR_API_KEY',
-      }
+    anthropic.baseUrl = 'https://www.clawproxy.ai/api/proxy/v1'
+    const headers = (anthropic.headers as Record<string, unknown>) ?? {}
+    headers['x-clawproxy-key'] = apiKey || 'YOUR_API_KEY'
+    anthropic.headers = headers
+    if (!Array.isArray(anthropic.models)) {
+      anthropic.models = [
+        { id: 'claude-opus-4-0-20250514', name: 'Claude Opus 4', contextWindow: 200000, maxTokens: 32000 },
+        { id: 'claude-opus-4-6', name: 'Claude Opus 4.6', contextWindow: 200000, maxTokens: 32000 },
+        { id: 'claude-sonnet-4-5-20250929', name: 'Claude Sonnet 4.5', contextWindow: 200000, maxTokens: 16000 },
+        { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5', contextWindow: 200000, maxTokens: 8192 },
+      ]
     }
+
+    providers.anthropic = anthropic
+    models.providers = providers
+    parsed.models = models
 
     const patched = JSON.stringify(parsed, null, 2)
 
     return NextResponse.json({
       patched,
       changes: [
-        'Added apiBaseUrl: "https://api.clawproxy.ai/v1"',
+        'Set models.providers.anthropic.baseUrl to "https://www.clawproxy.ai/api/proxy/v1"',
         apiKey
           ? 'Added x-clawproxy-key header with your API key'
           : 'Added x-clawproxy-key placeholder — replace YOUR_API_KEY with your actual key',

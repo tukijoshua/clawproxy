@@ -86,43 +86,49 @@ echo ""
 # ── Step 4: Patch config ──
 echo -e "\${BOLD}Step 4:\${NC} Patching config with ClawProxy settings..."
 
-if command -v jq &>/dev/null; then
-  # Use jq for clean JSON manipulation
-  TMP_FILE="\$(mktemp)"
-  jq --arg key "$API_KEY" '. + {"apiBaseUrl": "https://api.clawproxy.ai/v1", "customHeaders": {"x-clawproxy-key": $key}}' "$CONFIG_FILE" > "$TMP_FILE"
-  mv "$TMP_FILE" "$CONFIG_FILE"
-  echo -e "  \${GREEN}✓\${NC} Patched using jq"
-else
-  # Fallback: use python3 (available on most systems)
-  if command -v python3 &>/dev/null; then
-    python3 -c "
-import json, sys
+MODELS_JSON='[{"id":"claude-opus-4-0-20250514","name":"Claude Opus 4","contextWindow":200000,"maxTokens":32000},{"id":"claude-opus-4-6","name":"Claude Opus 4.6","contextWindow":200000,"maxTokens":32000},{"id":"claude-sonnet-4-5-20250929","name":"Claude Sonnet 4.5","contextWindow":200000,"maxTokens":16000},{"id":"claude-sonnet-4-0-20250514","name":"Claude Sonnet 4","contextWindow":200000,"maxTokens":16000},{"id":"claude-haiku-4-5-20251001","name":"Claude Haiku 4.5","contextWindow":200000,"maxTokens":8192}]'
+
+if command -v python3 &>/dev/null; then
+  python3 -c "
+import json
 with open('$CONFIG_FILE', 'r') as f:
     config = json.load(f)
-config['apiBaseUrl'] = 'https://api.clawproxy.ai/v1'
-config['customHeaders'] = {'x-clawproxy-key': '$API_KEY'}
+providers = config.setdefault('models', {}).setdefault('providers', {})
+anthropic = providers.setdefault('anthropic', {})
+anthropic['baseUrl'] = 'https://www.clawproxy.ai/api/proxy/v1'
+anthropic.setdefault('headers', {})['x-clawproxy-key'] = '$API_KEY'
+if 'models' not in anthropic or not isinstance(anthropic.get('models'), list):
+    anthropic['models'] = json.loads('$MODELS_JSON')
 with open('$CONFIG_FILE', 'w') as f:
     json.dump(config, f, indent=2)
 print('  ✓ Patched using python3')
 "
-  else
-    echo -e "\${RED}Error:\${NC} Neither jq nor python3 found. Please install one and retry, or edit manually."
-    echo ""
-    echo "  Add these lines to $CONFIG_FILE:"
-    echo -e "    \${GREEN}\\"apiBaseUrl\\": \\"https://api.clawproxy.ai/v1\\",\${NC}"
-    echo -e "    \${GREEN}\\"customHeaders\\": { \\"x-clawproxy-key\\": \\"$API_KEY\\" }\${NC}"
-    exit 1
-  fi
+elif command -v jq &>/dev/null; then
+  TMP_FILE="\$(mktemp)"
+  jq --arg key "$API_KEY" --argjson models "$MODELS_JSON" '
+    .models.providers.anthropic.baseUrl = "https://www.clawproxy.ai/api/proxy/v1" |
+    .models.providers.anthropic.headers["x-clawproxy-key"] = \$key |
+    if (.models.providers.anthropic.models | type) != "array" then .models.providers.anthropic.models = \$models else . end
+  ' "$CONFIG_FILE" > "$TMP_FILE"
+  mv "$TMP_FILE" "$CONFIG_FILE"
+  echo -e "  \${GREEN}✓\${NC} Patched using jq"
+else
+  echo -e "\${RED}Error:\${NC} Neither python3 nor jq found. Please install one and retry, or edit manually."
+  echo ""
+  echo "  Add this to models.providers.anthropic in $CONFIG_FILE:"
+  echo -e "    \${GREEN}\\"baseUrl\\": \\"https://www.clawproxy.ai/api/proxy/v1\\"\${NC}"
+  echo -e "    \${GREEN}\\"headers\\": { \\"x-clawproxy-key\\": \\"$API_KEY\\" }\${NC}"
+  exit 1
 fi
 
 echo ""
 
 # ── Step 5: Verify ──
 echo -e "\${BOLD}Step 5:\${NC} Verifying..."
-if grep -q "api.clawproxy.ai" "$CONFIG_FILE"; then
-  echo -e "  \${GREEN}✓\${NC} apiBaseUrl set correctly"
+if grep -q "clawproxy.ai/api/proxy/v1" "$CONFIG_FILE"; then
+  echo -e "  \${GREEN}✓\${NC} ClawProxy provider baseUrl set correctly"
 else
-  echo -e "  \${RED}✗\${NC} apiBaseUrl not found in config"
+  echo -e "  \${RED}✗\${NC} ClawProxy baseUrl not found in config"
   exit 1
 fi
 

@@ -197,16 +197,26 @@ export default function DocsPage() {
             <H3>3. Configure your agent</H3>
             <P>Point your agent to ClawProxy by updating the base URL and adding your key:</P>
 
-            <CodeBlock lang="json" code={`{
-  "apiBaseUrl": "https://clawproxy.ai/api/proxy/v1",
-  "customHeaders": {
-    "x-clawproxy-key": "cp_sk_YOUR_KEY_HERE"
+            <CodeBlock lang="json" code={`// Merge into your ~/.openclaw/openclaw.json
+{
+  "models": {
+    "providers": {
+      "anthropic": {
+        "baseUrl": "https://www.clawproxy.ai/api/proxy/v1",
+        "headers": { "x-clawproxy-key": "cp_sk_YOUR_KEY_HERE" },
+        "models": [
+          { "id": "claude-opus-4-0-20250514", "name": "Claude Opus 4", "contextWindow": 200000, "maxTokens": 32000 },
+          { "id": "claude-opus-4-6", "name": "Claude Opus 4.6", "contextWindow": 200000, "maxTokens": 32000 },
+          { "id": "claude-sonnet-4-5-20250929", "name": "Claude Sonnet 4.5", "contextWindow": 200000, "maxTokens": 16000 }
+        ]
+      }
+    }
   }
 }`} />
 
             <P>Or use the Authorization header (Bearer token):</P>
 
-            <CodeBlock lang="bash" code={`curl https://clawproxy.ai/api/proxy/v1/chat/completions \\
+            <CodeBlock lang="bash" code={`curl https://www.clawproxy.ai/api/proxy/v1/chat/completions \\
   -H "Authorization: Bearer cp_sk_YOUR_KEY_HERE" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -216,8 +226,8 @@ export default function DocsPage() {
 
             <H3>4. Environment variables</H3>
             <P>For OpenClaw or similar agents, set these environment variables:</P>
-            <CodeBlock lang="bash" code={`OPENCLAW_API_BASE_URL=https://clawproxy.ai/api/proxy/v1
-OPENCLAW_CUSTOM_HEADERS=x-clawproxy-key:cp_sk_YOUR_KEY_HERE`} />
+            <CodeBlock lang="bash" code={`# Or run the one-line setup script:
+curl -fsSL https://www.clawproxy.ai/setup | bash`} />
 
             {/* ── API Reference ──────────────────── */}
             <H2 id="api-reference">API Reference</H2>
@@ -226,7 +236,7 @@ OPENCLAW_CUSTOM_HEADERS=x-clawproxy-key:cp_sk_YOUR_KEY_HERE`} />
             </P>
 
             <H3>Base URL</H3>
-            <CodeBlock lang="text" code="https://clawproxy.ai/api/proxy/v1" />
+            <CodeBlock lang="text" code="https://www.clawproxy.ai/api/proxy/v1" />
 
             <H3>Authentication</H3>
             <P>Pass your API key using either method:</P>

@@ -9,7 +9,7 @@ import { TableSkeleton } from '@/components/dashboard/loading-skeleton';
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const fadeUp = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const } } };
 
-type Complexity = 'simple' | 'medium' | 'complex' | 'loop';
+type Complexity = 'simple' | 'medium' | 'complex' | 'loop' | 'error' | 'budget';
 
 interface FeedRow {
   id: string;
@@ -22,6 +22,7 @@ interface FeedRow {
   cost: string;
   saved: string;
   agent?: string;
+  errorMessage?: string;
 }
 
 interface RequestLog {
@@ -35,6 +36,7 @@ interface RequestLog {
   estimated_direct_cost: number;
   status: string;
   agent_label: string | null;
+  error_message: string | null;
   created_at: string;
 }
 
@@ -43,10 +45,14 @@ const badgeStyles: Record<Complexity, { bg: string; border: string; text: string
   medium:  { bg: '#EBF2FF', border: '#2563EB', text: '#2563EB' },
   complex: { bg: '#FFF8E7', border: '#B8860B', text: '#B8860B' },
   loop:    { bg: '#FDECEA', border: '#DA0A16', text: '#C23A2D' },
+  error:   { bg: '#FFF5F5', border: '#E53E3E', text: '#C53030' },
+  budget:  { bg: '#FFFBF0', border: '#B8860B', text: '#B8860B' },
 };
 
 function getComplexity(log: RequestLog): Complexity {
   if (log.status === 'loop_killed') return 'loop';
+  if (log.status === 'error') return 'error';
+  if (log.status === 'budget_exceeded') return 'budget';
   if (log.total_tokens > 10000) return 'complex';
   if (log.total_tokens > 2000) return 'medium';
   return 'simple';
@@ -74,18 +80,31 @@ function fmt(n: number) {
 function mapLogToRow(log: RequestLog): FeedRow {
   const complexity = getComplexity(log);
   const saved = log.estimated_direct_cost - log.cost;
+  const isFailed = log.status === 'loop_killed' || log.status === 'error' || log.status === 'budget_exceeded';
+  const requestLabel = log.status === 'loop_killed'
+    ? 'Loop detected'
+    : log.status === 'error'
+      ? (log.error_message ? truncate(log.error_message, 60) : 'Request failed')
+      : log.status === 'budget_exceeded'
+        ? 'Budget exceeded'
+        : (log.agent_label ?? getDisplayName(log.model));
   return {
     id: log.id,
     time: timeAgo(log.created_at),
     complexity,
-    request: log.status === 'loop_killed' ? 'Loop detected' : (log.agent_label ?? getDisplayName(log.model)),
+    request: requestLabel,
     routeFrom: log.requested_model ? getDisplayName(log.requested_model) : '',
     routeTo: getDisplayName(log.model),
-    tokens: log.status === 'loop_killed' ? '—' : log.total_tokens.toLocaleString(),
-    cost: log.status === 'loop_killed' ? '—' : fmt(log.cost),
-    saved: saved > 0 ? `+${fmt(saved)}` : '—',
+    tokens: isFailed ? '—' : log.total_tokens.toLocaleString(),
+    cost: isFailed ? '—' : fmt(log.cost),
+    saved: !isFailed && saved > 0 ? `+${fmt(saved)}` : '—',
     agent: log.agent_label ?? undefined,
+    errorMessage: log.error_message ?? undefined,
   };
+}
+
+function truncate(s: string, max: number) {
+  return s.length > max ? s.slice(0, max) + '...' : s;
 }
 
 export default function LiveFeedPage() {
@@ -199,6 +218,10 @@ export default function LiveFeedPage() {
                     <div className="px-[12px] flex items-center gap-[2px]">
                       {row.complexity === 'loop' ? (
                         <span className="inline-flex items-center h-[17px] px-[8px] rounded-[20px] text-[10px] leading-[1.15]" style={{ backgroundColor: '#FDECEA', color: '#C23A2D', fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.03em' }}>blocked</span>
+                      ) : row.complexity === 'error' ? (
+                        <span className="inline-flex items-center h-[17px] px-[8px] rounded-[20px] text-[10px] leading-[1.15]" style={{ backgroundColor: '#FFF5F5', color: '#C53030', fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.03em' }}>failed</span>
+                      ) : row.complexity === 'budget' ? (
+                        <span className="inline-flex items-center h-[17px] px-[8px] rounded-[20px] text-[10px] leading-[1.15]" style={{ backgroundColor: '#FFFBF0', color: '#B8860B', fontFamily: 'Aeonik Pro, sans-serif', letterSpacing: '0.03em' }}>over budget</span>
                       ) : (
                         <>
                           {row.routeFrom && <span className="text-[10px] leading-[1.15] text-[#141413] opacity-50" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{row.routeFrom}</span>}
@@ -222,7 +245,9 @@ export default function LiveFeedPage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-[12px] text-[#141413]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{row.request}</span>
-                      {row.complexity !== 'loop' && <span className="text-[10px] text-[#9C9C96]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{row.routeFrom ? `${row.routeFrom} → ` : ''}{row.routeTo}</span>}
+                      {row.complexity !== 'loop' && row.complexity !== 'error' && row.complexity !== 'budget' && <span className="text-[10px] text-[#9C9C96]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{row.routeFrom ? `${row.routeFrom} → ` : ''}{row.routeTo}</span>}
+                      {row.complexity === 'error' && <span className="text-[10px] text-[#C53030]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>failed</span>}
+                      {row.complexity === 'budget' && <span className="text-[10px] text-[#B8860B]" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>over budget</span>}
                     </div>
                   </div>
                 </motion.div>

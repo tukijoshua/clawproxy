@@ -4,6 +4,7 @@ import { checkBudget } from '@/lib/proxy/budget-guard'
 import { hashRequest, detectLoop } from '@/lib/proxy/loop-detector'
 import { applyRoutingRules } from '@/lib/proxy/router'
 import { calculateCost, calculateEstimatedDirectCost } from '@/lib/proxy/cost'
+import { normalizeModelId } from '@/lib/proxy/models'
 import { getServiceClient } from '@/lib/supabase/service'
 
 const OPENROUTER_BASE = 'https://openrouter.ai/api/v1'
@@ -57,7 +58,8 @@ export async function POST(
     )
   }
 
-  const requestedModel = (body.model as string) ?? 'openai/gpt-4o-mini'
+  const rawModel = (body.model as string) ?? 'openai/gpt-4o-mini'
+  const requestedModel = normalizeModelId(rawModel)
   const isStreaming = body.stream === true
 
   // 3. Budget check

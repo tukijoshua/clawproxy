@@ -699,7 +699,7 @@ export default function Home() {
               {/* Code snippet */}
               <div className="rounded-[5px] px-[14px] py-[14px] mb-[15px]" style={{ backgroundColor: '#383838' }}>
                 <code className="text-[11.5px] leading-[1.7] text-[#6EE7B7] block whitespace-pre-wrap" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                  {`"apiBaseUrl":\n"https://api.clawproxy.ai/v1"\n"customHeaders": { "x-clawproxy-key":\n"cp_sk_..." }`}
+                  {`"models.providers.anthropic":\n"baseUrl": "https://www.\nclawproxy.ai/api/proxy/v1"\n"headers": { "x-clawproxy-key":\n"cp_sk_..." }`}
                 </code>
               </div>
 

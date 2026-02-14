@@ -50,6 +50,26 @@ export async function GET() {
 
   const agents = keys.map((key) => {
     const stats = statsMap.get(key.id) ?? { spend: 0, saved: 0, requests: 0, loops: 0 }
+
+    // Derive connection status from last_used_at
+    let connectionStatus: 'connected' | 'idle' | 'disconnected' | 'revoked'
+    if (!key.is_active) {
+      connectionStatus = 'revoked'
+    } else if (!key.last_used_at) {
+      connectionStatus = 'disconnected'
+    } else {
+      const msSinceLastUsed = now.getTime() - new Date(key.last_used_at).getTime()
+      const FIVE_MINUTES = 5 * 60 * 1000
+      const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000
+      if (msSinceLastUsed < FIVE_MINUTES) {
+        connectionStatus = 'connected'
+      } else if (msSinceLastUsed < TWENTY_FOUR_HOURS) {
+        connectionStatus = 'idle'
+      } else {
+        connectionStatus = 'disconnected'
+      }
+    }
+
     return {
       id: key.id,
       name: key.label,
@@ -57,6 +77,7 @@ export async function GET() {
       isActive: key.is_active,
       lastUsedAt: key.last_used_at,
       createdAt: key.created_at,
+      connectionStatus,
       spend: Number(stats.spend.toFixed(4)),
       saved: Number(stats.saved.toFixed(4)),
       requests: stats.requests,

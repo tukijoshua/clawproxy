@@ -71,11 +71,13 @@ export default function HowItWorksPage() {
                   className="text-[11px] sm:text-[12px] leading-[1.7] text-white whitespace-pre"
                   style={{ fontFamily: 'JetBrains Mono, monospace' }}
                 >
-{`// Before (expensive — every request hits Opus)
-"apiBaseUrl": "https://api.anthropic.com"
+{`// Before (direct to Anthropic)
+"providers.anthropic.baseUrl":
+  "https://api.anthropic.com"
 
-// After (smart — we route to the right model)
-"apiBaseUrl": "https://api.clawproxy.ai/v1"`}
+// After (routed through ClawProxy)
+"providers.anthropic.baseUrl":
+  "https://www.clawproxy.ai/api/proxy/v1"`}
                 </pre>
               </div>
             </div>

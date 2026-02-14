@@ -11,6 +11,8 @@ import { EmptyState } from '@/components/dashboard/empty-state';
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const fadeUp = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const } } };
 
+type ConnectionStatus = 'connected' | 'idle' | 'disconnected' | 'revoked';
+
 interface AgentData {
   id: string;
   name: string;
@@ -18,11 +20,19 @@ interface AgentData {
   isActive: boolean;
   lastUsedAt: string | null;
   createdAt: string;
+  connectionStatus: ConnectionStatus;
   spend: number;
   saved: number;
   requests: number;
   loops: number;
 }
+
+const STATUS_CONFIG: Record<ConnectionStatus, { label: string; dotColor: string; bgColor: string; textColor: string; borderColor?: string }> = {
+  connected: { label: 'Connected', dotColor: '#22C55E', bgColor: '#E2F3EA', textColor: '#17803D', borderColor: '#0C5526' },
+  idle: { label: 'Idle', dotColor: '#EAB308', bgColor: '#FFF8E1', textColor: '#92750C' },
+  disconnected: { label: 'Disconnected', dotColor: '#EF4444', bgColor: '#FFF5F5', textColor: '#DC2626' },
+  revoked: { label: 'Revoked', dotColor: '#B8B8B0', bgColor: '#EEEDEA', textColor: '#B8B8B0' },
+};
 
 const agentColors = ['#17803D', '#2563EB', '#7C3AED', '#D97706', '#DC2626', '#0D9488', '#4F46E5', '#EA580C'];
 
@@ -133,15 +143,19 @@ export default function AgentsPage() {
           <motion.div variants={fadeUp} className="flex flex-col gap-[3px] mb-[7px]">
             {filteredAgents.map((agent, i) => {
               const color = agentColors[i % agentColors.length];
+              const status = STATUS_CONFIG[agent.connectionStatus];
+              const idleTimeLabel = agent.connectionStatus === 'idle' && agent.lastUsedAt ? ` · ${timeAgo(agent.lastUsedAt)}` : '';
+              const isDisconnected = agent.connectionStatus === 'disconnected';
               return (
-                <div key={agent.id} className="bg-white border border-[#E2E1DC] rounded-[12px] px-[25px] py-[21px] flex flex-col sm:flex-row sm:items-center gap-[12px] sm:gap-0 hover:shadow-md transition">
+                <div key={agent.id} className="bg-white border border-[#E2E1DC] rounded-[12px] px-[25px] py-[21px] flex flex-col sm:flex-row sm:items-center gap-[12px] sm:gap-0">
                   <div className="flex items-center gap-[16px] sm:flex-1 min-w-0">
                     <div className="w-[40px] h-[40px] rounded-[2px] shrink-0" style={{ backgroundColor: `${color}33`, border: `1px solid ${color}` }} />
                     <div className="min-w-0">
                       <div className="flex items-center gap-[8px]">
                         <span className="text-[15px] text-[#111110] truncate" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{agent.name}</span>
-                        <span className="shrink-0 inline-flex items-center h-[17px] px-[8px] rounded-[2px] text-[10px] uppercase" style={{ backgroundColor: agent.isActive ? '#E2F3EA' : '#EEEDEA', border: agent.isActive ? '1px solid #0C5526' : 'none', color: agent.isActive ? '#17803D' : '#B8B8B0', fontFamily: 'DM Sans, sans-serif', fontWeight: 600, letterSpacing: '0.03em' }}>
-                          {agent.isActive ? 'active' : 'inactive'}
+                        <span className="shrink-0 inline-flex items-center gap-[5px] h-[18px] px-[8px] rounded-[20px] text-[10px]" style={{ backgroundColor: status.bgColor, border: status.borderColor ? `1px solid ${status.borderColor}` : 'none', color: status.textColor, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, letterSpacing: '0.03em' }}>
+                          <span className="w-[7px] h-[7px] rounded-full" style={{ backgroundColor: status.dotColor }} />
+                          {status.label}{idleTimeLabel}
                         </span>
                       </div>
                       <div className="flex items-center gap-[6px] mt-[3px]">
@@ -151,23 +165,32 @@ export default function AgentsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-[24px] sm:gap-[32px] shrink-0">
-                    <div className="text-right">
-                      <span className="text-[14px] text-[#17803D] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{fmt(agent.saved)}</span>
-                      <span className="text-[10.5px] text-[#B8B8B0] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>saved today</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[14px] text-[#111110] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{fmt(agent.spend)}</span>
-                      <span className="text-[10.5px] text-[#B8B8B0] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>spent today</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[14px] text-[#111110] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{agent.requests}</span>
-                      <span className="text-[10.5px] text-[#B8B8B0] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>requests</span>
-                    </div>
-                    {agent.loops > 0 && (
-                      <div className="text-right">
-                        <span className="text-[14px] text-[#D93025] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{agent.loops}</span>
-                        <span className="text-[10.5px] text-[#B8B8B0] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>loops killed</span>
-                      </div>
+                    {isDisconnected ? (
+                      <Link href="/onboarding/setup?reconnect=1" className="h-[32px] px-[16px] rounded-[6px] text-[12px] text-white flex items-center justify-center gap-[6px] hover:opacity-90 transition shrink-0" style={{ backgroundColor: '#DC2626', fontFamily: 'Aeonik Pro, sans-serif' }}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+                        Reconfigure
+                      </Link>
+                    ) : (
+                      <>
+                        <div className="text-right">
+                          <span className="text-[14px] text-[#17803D] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{fmt(agent.saved)}</span>
+                          <span className="text-[10.5px] text-[#B8B8B0] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>saved today</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[14px] text-[#111110] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{fmt(agent.spend)}</span>
+                          <span className="text-[10.5px] text-[#B8B8B0] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>spent today</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[14px] text-[#111110] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{agent.requests}</span>
+                          <span className="text-[10.5px] text-[#B8B8B0] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>requests</span>
+                        </div>
+                        {agent.loops > 0 && (
+                          <div className="text-right">
+                            <span className="text-[14px] text-[#D93025] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>{agent.loops}</span>
+                            <span className="text-[10.5px] text-[#B8B8B0] block" style={{ fontFamily: 'Aeonik Pro, sans-serif' }}>loops killed</span>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

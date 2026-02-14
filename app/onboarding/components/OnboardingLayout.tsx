@@ -8,9 +8,7 @@ const STEPS = [
   { label: 'Account' },
   { label: 'Profile' },
   { label: 'How it works' },
-  { label: 'Setup' },
-  { label: 'API Key' },
-  { label: 'Done' },
+  { label: 'Connect' },
 ];
 
 export default function OnboardingLayout({
@@ -39,7 +37,7 @@ export default function OnboardingLayout({
               ClawProxy
             </span>
             <span className="text-[12px] sm:text-[13px] leading-[1.15] text-[#17803D]">
-              Step {currentStep} of 6
+              Step {currentStep} of 4
             </span>
           </motion.div>
         </div>

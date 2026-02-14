@@ -113,11 +113,31 @@ export async function GET(request: Request) {
     .filter((r) => r.status === 'loop_killed')
     .reduce((s, r) => s + Number(r.estimated_direct_cost), 0)
 
-  // Agent performance
-  const agentMap = new Map<string, { label: string; spend: number; saved: number; requests: number; loops: number; active: boolean }>()
+  // Agent performance — fetch API keys for connection status
+  const { data: apiKeys } = await service
+    .from('api_keys')
+    .select('id, is_active, last_used_at')
+    .eq('user_id', user.id)
+
+  const keyStatusMap = new Map<string, { isActive: boolean; lastUsedAt: string | null }>()
+  for (const k of apiKeys ?? []) {
+    keyStatusMap.set(k.id, { isActive: k.is_active, lastUsedAt: k.last_used_at })
+  }
+
+  function deriveConnectionStatus(keyId: string): 'connected' | 'idle' | 'disconnected' | 'revoked' {
+    const info = keyStatusMap.get(keyId)
+    if (!info || !info.isActive) return 'revoked'
+    if (!info.lastUsedAt) return 'disconnected'
+    const msSince = now.getTime() - new Date(info.lastUsedAt).getTime()
+    if (msSince < 5 * 60 * 1000) return 'connected'
+    if (msSince < 24 * 60 * 60 * 1000) return 'idle'
+    return 'disconnected'
+  }
+
+  const agentMap = new Map<string, { label: string; spend: number; saved: number; requests: number; loops: number; active: boolean; connectionStatus: string }>()
   for (const r of rows) {
     const key = r.api_key_id ?? 'unknown'
-    const entry = agentMap.get(key) ?? { label: r.agent_label ?? 'Unknown', spend: 0, saved: 0, requests: 0, loops: 0, active: false }
+    const entry = agentMap.get(key) ?? { label: r.agent_label ?? 'Unknown', spend: 0, saved: 0, requests: 0, loops: 0, active: false, connectionStatus: deriveConnectionStatus(key) }
     entry.spend += Number(r.cost)
     entry.saved += Number(r.estimated_direct_cost) - Number(r.cost)
     entry.requests++
