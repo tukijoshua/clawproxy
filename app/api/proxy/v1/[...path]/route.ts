@@ -159,31 +159,21 @@ export async function POST(
     const decoder = new TextDecoder()
     let buffer = ''
 
+    // Create a promise that resolves when the stream ends,
+    // so we can use waitUntil at the top level
+    let resolveStreamDone: () => void
+    const streamDonePromise = new Promise<void>((resolve) => {
+      resolveStreamDone = resolve
+    })
+
     const stream = new ReadableStream({
       async pull(controller) {
         try {
           const { done, value } = await reader.read()
           if (done) {
             controller.close()
-            // Log after stream completes — use waitUntil so Vercel
-            // doesn't kill the function before the DB write finishes
-            const { cost } = calculateCost(actualModel, promptTokens, completionTokens)
-            const estDirect = calculateEstimatedDirectCost(requestedModel, actualModel, promptTokens, completionTokens)
-            waitUntil(logRequest({
-              userId,
-              apiKeyId,
-              model: actualModel,
-              requestedModel,
-              promptTokens,
-              completionTokens,
-              totalTokens: promptTokens + completionTokens,
-              cost,
-              estimatedDirectCost: estDirect,
-              status: 'success',
-              agentLabel: label,
-              requestHash: reqHash,
-              latencyMs: Date.now() - startTime,
-            }))
+            // Signal that stream is done — logging happens via waitUntil below
+            resolveStreamDone()
             return
           }
 
@@ -210,9 +200,34 @@ export async function POST(
           controller.enqueue(value)
         } catch {
           controller.close()
+          resolveStreamDone()
         }
       },
     })
+
+    // Register the logging work with waitUntil at the REQUEST level
+    // This keeps the function alive after the stream response is sent
+    waitUntil(
+      streamDonePromise.then(() => {
+        const { cost } = calculateCost(actualModel, promptTokens, completionTokens)
+        const estDirect = calculateEstimatedDirectCost(requestedModel, actualModel, promptTokens, completionTokens)
+        return logRequest({
+          userId,
+          apiKeyId,
+          model: actualModel,
+          requestedModel,
+          promptTokens,
+          completionTokens,
+          totalTokens: promptTokens + completionTokens,
+          cost,
+          estimatedDirectCost: estDirect,
+          status: 'success',
+          agentLabel: label,
+          requestHash: reqHash,
+          latencyMs: Date.now() - startTime,
+        })
+      })
+    )
 
     return new Response(stream, {
       status: upstreamRes.status,
