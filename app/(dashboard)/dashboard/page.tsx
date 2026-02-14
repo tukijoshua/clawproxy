@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { usePlan } from '@/lib/user-context';
-import { useAnalytics } from '@/lib/hooks/use-analytics';
+import { useRealtimeAnalytics } from '@/lib/hooks/use-realtime-analytics';
 import { StatCardSkeleton, ChartSkeleton, TableSkeleton } from '@/components/dashboard/loading-skeleton';
 import { DashboardEmptyState } from '@/components/dashboard/dashboard-empty-state';
 
@@ -74,8 +74,9 @@ export default function DashboardPage() {
     }
     return '';
   });
+  const REALTIME_TABLES = ['request_logs', 'api_keys'];
   const apiUrl = `/api/analytics/overview?range=${timeRange}&agent=${selectedAgent}${cacheBuster}`;
-  const { data, loading } = useAnalytics<OverviewData>(apiUrl, [timeRange, selectedAgent]);
+  const { data, loading } = useRealtimeAnalytics<OverviewData>(apiUrl, REALTIME_TABLES);
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',

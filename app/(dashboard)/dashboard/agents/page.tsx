@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { usePlan } from '@/lib/user-context';
-import { useAnalytics } from '@/lib/hooks/use-analytics';
+import { useRealtimeAnalytics } from '@/lib/hooks/use-realtime-analytics';
 import { TableSkeleton } from '@/components/dashboard/loading-skeleton';
 import { EmptyState } from '@/components/dashboard/empty-state';
 
@@ -61,7 +61,8 @@ export default function AgentsPage() {
   const [generatedKey, setGeneratedKey] = useState('');
   const [creating, setCreating] = useState(false);
 
-  const { data, loading, refetch } = useAnalytics<{ agents: AgentData[] }>('/api/analytics/agents');
+  const REALTIME_TABLES = ['request_logs', 'api_keys'];
+  const { data, loading, refetch } = useRealtimeAnalytics<{ agents: AgentData[] }>('/api/analytics/agents', REALTIME_TABLES);
   const agents = data?.agents ?? [];
 
   const filteredAgents = agents.filter((a) =>

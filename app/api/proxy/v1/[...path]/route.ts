@@ -341,7 +341,9 @@ interface LogEntry {
 
 async function logRequest(entry: LogEntry) {
   const supabase = getServiceClient()
-  await supabase.from('request_logs').insert({
+
+  // Log the request
+  const { error: logError } = await supabase.from('request_logs').insert({
     user_id: entry.userId,
     api_key_id: entry.apiKeyId,
     model: entry.model,
@@ -357,4 +359,18 @@ async function logRequest(entry: LogEntry) {
     request_hash: entry.requestHash ?? null,
     error_message: entry.errorMessage ?? null,
   })
+
+  if (logError) {
+    console.error('[ClawProxy] Failed to log request:', logError.message)
+  }
+
+  // Update last_used_at on the API key
+  const { error: updateError } = await supabase
+    .from('api_keys')
+    .update({ last_used_at: new Date().toISOString() })
+    .eq('id', entry.apiKeyId)
+
+  if (updateError) {
+    console.error('[ClawProxy] Failed to update last_used_at:', updateError.message)
+  }
 }
